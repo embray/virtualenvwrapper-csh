@@ -1,0 +1,23 @@
+syntax: glob
+*.pyc
+README.html
+build
+dist
+distribute*.egg
+distribute*.tar.gz
+docs/build
+docs/html
+docs/website
+tests/catch_output
+tests/testpackage/build
+tests/testpackage/dist
+tests/testpackage/testpackage.egg-info
+trace.txt
+virtualenvwrapper.egg-info
+virtualenvwrapper/docs
+.tox
+*.orig
+
+syntax: re
+.DS_Store
+^web/
