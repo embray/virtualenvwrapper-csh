@@ -21,6 +21,7 @@ try:
 except IOError:
     long_description = ''
 
+
 ################################################################################
 # find_package_data is an Ian Bicking creation.
 
@@ -61,7 +62,7 @@ def find_package_data(
 
     Note patterns use wildcards, or can be exact paths (including
     leading ``./``), and all searching is case-insensitive.
-    
+
     This function is by Ian Bicking.
     """
 
@@ -109,15 +110,15 @@ def find_package_data(
                 out.setdefault(package, []).append(prefix+name)
     return out
 ################################################################################
-    
+
 
 setup(
     name = PROJECT,
     version = VERSION,
-    
+
     description = 'Enhancements to virtualenv',
     long_description = long_description,
-    
+
     author = 'Doug Hellmann',
     author_email = 'doug.hellmann@gmail.com',
 
@@ -139,7 +140,8 @@ setup(
 
     platforms = ['Any'],
 
-    scripts = ['virtualenvwrapper.sh', 
+    scripts = ['virtualenvwrapper.sh',
+               'virtualenvwrapper.csh'
                ],
 
     provides=['virtualenvwrapper',
@@ -151,9 +153,9 @@ setup(
     packages = find_packages(),
     include_package_data = True,
     # Scan the input for package information
-    # to grab any data files (text, images, etc.) 
+    # to grab any data files (text, images, etc.)
     # associated with sub-packages.
-    package_data = find_package_data(PROJECT, 
+    package_data = find_package_data(PROJECT,
                                      package=PROJECT,
                                      only_in_packages=False,
                                      ),
