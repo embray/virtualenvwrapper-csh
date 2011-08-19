@@ -17,6 +17,7 @@ virtualenvwrapper.egg-info
 virtualenvwrapper/docs
 .tox
 *.orig
+.*.swp
 
 syntax: re
 .DS_Store
