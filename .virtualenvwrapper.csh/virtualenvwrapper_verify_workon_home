@@ -1,0 +1,9 @@
+set RC = 0
+if ( ! -d "$WORKON_HOME/" ) then
+    if ( "$1" != "-q" ) then
+        echo "NOTE: Virtual environments directory $WORKON_HOME does not exist. Creating..." > /dev/stderr
+    endif
+    mkdir -p "$WORKON_HOME"
+    set RC = $?
+endif
+exit $RC

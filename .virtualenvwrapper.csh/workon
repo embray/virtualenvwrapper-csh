@@ -1,0 +1,43 @@
+if ( $#argv == 0 ) then
+    lsvirtualenv -b
+    exit 1
+endif
+
+set env_name = "$argv[1]"
+
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_workon_environment $env_name || exit 1
+
+set activate = "$WORKON_HOME/$env_name/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate"
+if ( ! -f "$activate" ) then
+    echo "ERROR: Environment '$WORKON_HOME/$env_name' does not contain an activate script." > /dev/stderr
+    exit 1
+endif
+
+# Deactivate any current environment "destructively"
+# before switching so we use our override function,
+# if it exists.
+if ( "`alias deactivate`" != "" ) then
+    deactivate
+    unalias deactivate
+endif
+
+virtualenvwrapper_run_hook "pre_activate" "$env_name"
+
+source "$activate"
+
+# Save the deactivate function from virtualenv under a different name
+set virtualenvwrapper_original_deactivate = "`alias deactivate`"
+set virtualenvwrapper_original_deactivate = \
+    `alias $virtualenvwrapper_original_deactivate | \
+     sed 's/deactivate/virtualenv_deactivate/g'`
+alias virtualenv_deactivate "$virtualenvwrapper_original_deactivate"
+unalias deactivate
+
+# Replace the deactivate() function with a wrapper.
+alias deactivate 'virtualenvwrapper_run_hook "pre_deactivate"; set env_postdeactivate_hook = "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_ENV_BIN_DIR/postdeactivate"; set old_env = $(basename "$VIRTUAL_ENV"); virtualenv_deactivate $argv[1]; virtualenvwrapper_run_hook "post_deactivate" "$old_env"; test \( "$argv[1] != "nondestructive" \) && unalias virtualenv_deactivate && unalias deactivate'
+
+virtualenvwrapper_run_hook "post_activate"
+
+exit 0
+

@@ -1,0 +1,21 @@
+set envname = $argv[$#argv]
+
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_virtualenv || exit 1
+
+cd "$WORKON_HOME" && \
+"$VIRTUALENVWRAPPER_VIRTUALENV" $VIRTUALENVWRAPPER_VIRTUALENV_ARGS "$argv" && \
+test \( -d "$WORKON_HOME/$envname" \) && \
+virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname"
+
+@ RC = $?
+test \( $RC -ne 0 \) && exit $RC
+
+# If they passed a help option or got an error from virtualenv,
+# the environment won't exist.  Use that to tell whether
+# we should switch to the environment and run the hook.
+test \( ! -d "$WORKON_HOME/$envname" \) && exit 0
+# Now activate the new environment
+workon "$envname"
+virtualenvwrapper_run_hook "post_mkvirtualenv"
+

@@ -1,0 +1,37 @@
+set workon_home_dir = "$WORKON_HOME"
+
+# Make sure there is a default value for WORKON_HOME
+# You can override this setting in your .bashrc.
+if ( "$workon_home_dir" == "" ) then
+    set workon_home_dir = "$HOME/.virtualenvs"
+endif
+
+if ( $?GREP_OPTIONS ) then
+    set grep_options = "$GREP_OPTIONS"
+    unsetenv GREP_OPTIONS
+endif
+
+# If the path is relative, prefix it with $HOME
+# (note: for compatibility)
+if ( `echo "$workon_home_dir" | grep '^[^/~]' > /dev/null` ) then
+    set workon_home_dir = "$HOME/$WORKON_HOME"
+endif
+
+# Only call on Python to fix the path if it looks like the
+# path might contain stuff to expand.
+# (it might be possible to do this in shell, but I don't know a
+# cross-shell-safe way of doing it -wolever)
+if ( `echo "$workon_home_dir" | egrep '([\$~]|//)' > /dev/null` ) then
+    # This will normalize the path by:
+    # - Removing extra slashes (e.g., when TMPDIR ends in a slash)
+    # - Expanding variables (e.g., $foo)
+    # - Converting ~s to complete paths (e.g., ~/ to /home/brian/ and ~arthur to /home/arthur)
+    set workon_home_dir = `"$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.expandvars(os.path.expanduser(\"$workon_home_dir\"))"`
+endif
+
+echo "$workon_home_dir"
+unset workon_home_dir
+if ( $?grep_options ) then
+    setenv GREP_OPTIONS $grep_options
+    unset grep_options
+endif

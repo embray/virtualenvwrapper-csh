@@ -1,0 +1,24 @@
+if ( $?GREP_OPTIONS ) then
+    set grep_options = "$GREP_OPTIONS"
+    unsetenv GREP_OPTIONS
+endif
+
+set venv = `which "$VIRTUALENVWRAPPER_VIRTUALENV" | grep -v "not found"`
+
+if ( $?grep_options ) then
+    setenv GREP_OPTIONS "$grep_options"
+endif
+
+if ( "$venv" == "" ) then
+    echo "ERROR: virtualenvwrapper could not find $VIRTUALENVWRAPPER_VIRTUALENV in your path" > /dev/stderr
+    exit 1
+endif
+
+if ( ! -e "$venv" ) then
+    echo "ERROR: Found $VIRTUALENVWRAPPER_VIRTUALENV in path as \"$venv\" but that does not exist" > /dev/stderr
+    exit 1
+endif
+
+unset venv
+exit 0
+
