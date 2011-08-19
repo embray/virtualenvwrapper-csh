@@ -99,15 +99,15 @@ set HOOK_VERBOSE_OPTION = "-q"
 
 # Expects 1 argument, the suffix for the new file.
 alias virtualenvwrapper_tempfile \
-    'set argv = (\!:1); \
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile; \
-     unset argv'
+    '(set argv = (\!:1); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile; \\
+      unset argv)'
 
 # Run the hooks
 alias virtualenvwrapper_run_hook \
-    'set argv = (\!:*); \
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook; \
-     unset argv'
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook; \\
+      unset argv)'
 
 # Set up virtualenvwrapper properly
 alias virtualenvwrapper_initialize \
@@ -119,9 +119,9 @@ alias virtualenvwrapper_verify_virtualenv \
 
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
-    'set argv = (\!:*); \
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment; \
-     unset argv'
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment; \\
+      unset argv)'
 
 ## Verify that the active environment exists
 #virtualenvwrapper_verify_active_environment () {
@@ -139,9 +139,9 @@ alias virtualenvwrapper_verify_workon_environment \
 # (where the options are passed directly to virtualenv)
 #
 alias mkvirtualenv \
-    'set argv = (\!:*); \
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \
-     unset argv'
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \\
+      unset argv)'
 
 ## Remove an environment, in the WORKON_HOME.
 #rmvirtualenv () {
@@ -180,19 +180,20 @@ alias mkvirtualenv \
 alias virtualenvwrapper_show_workon_options \
     'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_show_workon_options'
 
-alias _lsvirtualenv_usage ' \
-    echo "lsvirtualenv [-blh]"; \
-    echo "  -b -- brief mode"; \
-    echo "  -l -- long mode"; \
-    echo "  -h -- this help message"'
+alias _lsvirtualenv_usage ' \\
+    (echo "lsvirtualenv [-blh]"; \\
+     echo "  -b -- brief mode"; \\
+     echo "  -l -- long mode"; \\
+     echo "  -h -- this help message")'
 
 
 # List virtual environments
 #
 # Usage: lsvirtualenv [-l]
 alias lsvirtualenv \
-    'set argv = (\!:*); source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \
-     unset argv'
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \\
+      unset argv)'
 
 ## Show details of a virtualenv
 ##
@@ -219,7 +220,9 @@ alias lsvirtualenv \
 # Usage: workon [environment_name]
 #
 alias workon \
-    'set argv = (\!:*); source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; unset argv'
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; \\
+      unset argv)'
 
 
 ## Prints the Python version string for the current interpreter.
