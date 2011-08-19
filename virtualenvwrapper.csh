@@ -111,7 +111,7 @@ alias virtualenvwrapper_verify_virtualenv \
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
     'set argv = (\!:*); \
-     source ${FUNCDIR}/virtualenvwrapper_verify_workon_environment;
+     source ${FUNCDIR}/virtualenvwrapper_verify_workon_environment; \
      unset argv'
 
 ## Verify that the active environment exists
@@ -164,78 +164,24 @@ alias mkvirtualenv \
 #        \cd "$prior_dir"
 #    fi
 #}
+
+# List the available environments.
+alias virtualenvwrapper_show_workon_options \
+    'source ${FUNCDIR}/virtualenvwrapper_show_workon_options'
+
+alias _lsvirtualenv_usage ' \
+    echo "lsvirtualenv [-blh]"; \
+    echo "  -b -- brief mode"; \
+    echo "  -l -- long mode"; \
+    echo "  -h -- this help message"'
+
+
+# List virtual environments
 #
-## List the available environments.
-#virtualenvwrapper_show_workon_options () {
-#    virtualenvwrapper_verify_workon_home || return 1
-#    # NOTE: DO NOT use ls here because colorized versions spew control characters
-#    #       into the output list.
-#    # echo seems a little faster than find, even with -depth 3.
-#    (\cd "$WORKON_HOME"; for f in */$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate; do echo $f; done) 2>/dev/null | \sed 's|^\./||' | \sed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" | \sort | (unset GREP_OPTIONS; \egrep -v '^\*$')
-#
-##    (\cd "$WORKON_HOME"; find -L . -depth 3 -path '*/bin/activate') | sed 's|^\./||' | sed 's|/bin/activate||' | sort
-#}
-#
-#_lsvirtualenv_usage () {
-#    echo "lsvirtualenv [-blh]"
-#    echo "  -b -- brief mode"
-#    echo "  -l -- long mode"
-#    echo "  -h -- this help message"
-#}
-#
-## List virtual environments
-##
-## Usage: lsvirtualenv [-l]
-#lsvirtualenv () {
-#    
-#    typeset long_mode=true
-#    if command -v "getopts" &> /dev/null 
-#    then
-#		# Use getopts when possible
-#    	OPTIND=1
-#		while getopts ":blh" opt "$@"
-#		do
-#			case "$opt" in
-#				l) long_mode=true;;
-#				b) long_mode=false;;
-#				h)  _lsvirtualenv_usage;
-#					return 1;;
-#				?) echo "Invalid option: -$OPTARG" >&2;
-#					_lsvirtualenv_usage;
-#					return 1;;
-#			esac
-#		done
-#    else
-#    	# fallback on getopt for other shell
-#	    typeset -a args
-#	    args=($(getopt blh "$@"))
-#	    if [ $? != 0 ]
-#	    then
-#	        _lsvirtualenv_usage
-#	        return 1
-#	    fi
-#	    for opt in $args
-#	    do
-#	        case "$opt" in
-#	            -l) long_mode=true;;
-#	            -b) long_mode=false;;
-#	            -h) _lsvirtualenv_usage;
-#	                return 1;;
-#	        esac
-#	    done
-#    fi
-#
-#    if $long_mode
-#    then
-#        for env_name in $(virtualenvwrapper_show_workon_options)
-#        do
-#            showvirtualenv "$env_name"
-#        done
-#    else
-#        virtualenvwrapper_show_workon_options
-#    fi
-#}
-#
+# Usage: lsvirtualenv [-l]
+alias lsvirtualenv \
+    'set argv = (\!:*); source ${FUNCDIR}/lsvirtualenv; unset argv'
+
 ## Show details of a virtualenv
 ##
 ## Usage: showvirtualenv [env]
