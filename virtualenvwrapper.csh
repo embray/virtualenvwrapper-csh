@@ -46,14 +46,12 @@
 
 # This is the source command used to run this file; it should be sourced rather
 # than executed as a script
-set COMMAND = ($_)
+set VIRTUALENVWRAPPER_COMMAND = ($_)
 # The directory containing virtualenvwrapper.csh
-set SCRIPTDIR = "`dirname $COMMAND[2]`"
-# The directory containing 'functions' for virtualenvwrapper.csh
-set FUNCDIR = "${SCRIPTDIR}/.virtualenvwrapper.csh"
+set VIRTUALENVWRAPPER_SCRIPTDIR = "`dirname $VIRTUALENVWRAPPER_COMMAND[2]`"
 
 # Files to cleanup upon exit
-set CLEANUP = ()
+set VIRTUALENVWRAPPER_CLEANUP = ()
 onintr cleanup
 
 # Locate the global Python where virtualenvwrapper is installed.
@@ -78,40 +76,51 @@ if ( $?OS && $?MSYSTEM ) then
     endif
 endif
 
+# Set VIRTUALENVWRAPPER_SCRIPTDIR to its absolute path
+# Get the absolute path...
+set VIRTUALENVWRAPPER_SCRIPTDIR = \
+    `"$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.abspath('$VIRTUALENVWRAPPER_SCRIPTDIR')"`
+
+# The directory containing 'functions' for virtualenvwrapper.csh
+set VIRTUALENVWRAPPER_FUNCDIR = \
+    "${VIRTUALENVWRAPPER_SCRIPTDIR}/.virtualenvwrapper.csh"
+
 alias virtualenvwrapper_derive_workon_home \
-    'source ${FUNCDIR}/virtualenvwrapper_derive_workon_home'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_derive_workon_home'
 
 # Check if the WORKON_HOME directory exists,
 # create it if it does not
 # seperate from creating the files in it because this used to just error
 # and maybe other things rely on the dir existing before that happens.
 alias virtualenvwrapper_verify_workon_home \
-    'source ${FUNCDIR}/virtualenvwrapper_verify_workon_home'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_home'
 
 set HOOK_VERBOSE_OPTION = "-q"
 
 # Expects 1 argument, the suffix for the new file.
 alias virtualenvwrapper_tempfile \
-    'set argv = (\!:1); source ${FUNCDIR}/virtualenvwrapper_tempfile; \
+    'set argv = (\!:1); \
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile; \
      unset argv'
 
 # Run the hooks
 alias virtualenvwrapper_run_hook \
-    'set argv = (\!:*); source ${FUNCDIR}/virtualenvwrapper_run_hook; \
+    'set argv = (\!:*); \
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook; \
      unset argv'
 
 # Set up virtualenvwrapper properly
 alias virtualenvwrapper_initialize \
-    'source ${FUNCDIR}/virtualenvwrapper_initialize'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_initialize'
 
 # Verify that virtualenv is installed and visible
 alias virtualenvwrapper_verify_virtualenv \
-    'source ${FUNCDIR}/virtualenvwrapper_verify_virtualenv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_virtualenv'
 
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
     'set argv = (\!:*); \
-     source ${FUNCDIR}/virtualenvwrapper_verify_workon_environment; \
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment; \
      unset argv'
 
 ## Verify that the active environment exists
@@ -130,7 +139,9 @@ alias virtualenvwrapper_verify_workon_environment \
 # (where the options are passed directly to virtualenv)
 #
 alias mkvirtualenv \
-    'set argv = (\!:*); source ${FUNCDIR}/mkvirtualenv; unset argv'
+    'set argv = (\!:*); \
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \
+     unset argv'
 
 ## Remove an environment, in the WORKON_HOME.
 #rmvirtualenv () {
@@ -167,7 +178,7 @@ alias mkvirtualenv \
 
 # List the available environments.
 alias virtualenvwrapper_show_workon_options \
-    'source ${FUNCDIR}/virtualenvwrapper_show_workon_options'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_show_workon_options'
 
 alias _lsvirtualenv_usage ' \
     echo "lsvirtualenv [-blh]"; \
@@ -180,7 +191,8 @@ alias _lsvirtualenv_usage ' \
 #
 # Usage: lsvirtualenv [-l]
 alias lsvirtualenv \
-    'set argv = (\!:*); source ${FUNCDIR}/lsvirtualenv; unset argv'
+    'set argv = (\!:*); source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \
+     unset argv'
 
 ## Show details of a virtualenv
 ##
@@ -206,7 +218,8 @@ alias lsvirtualenv \
 #
 # Usage: workon [environment_name]
 #
-alias workon 'set argv = (\!:*); source ${FUNCDIR}/workon; unset argv'
+alias workon \
+    'set argv = (\!:*); source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; unset argv'
 
 
 ## Prints the Python version string for the current interpreter.
@@ -377,5 +390,5 @@ alias workon 'set argv = (\!:*); source ${FUNCDIR}/workon; unset argv'
 virtualenvwrapper_initialize
 
 cleanup:
-    rm -f ${CLEANUP} >& /dev/null
+    rm -f ${VIRTUALENVWRAPPER_CLEANUP} >& /dev/null
     onintr
