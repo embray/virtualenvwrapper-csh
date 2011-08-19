@@ -1,12 +1,24 @@
-set envname = $argv[$#argv]
+set envname = "$argv[$#argv]"
+
+# If envname not given, just display the virtualenv help and exit
+if ( "$envname" == "" ) then
+    "$VIRTUALENVWRAPPER_VIRTUALENV"
+    exit 1
+endif
 
 virtualenvwrapper_verify_workon_home || exit 1
 virtualenvwrapper_verify_virtualenv || exit 1
 
-cd "$WORKON_HOME" && \
-"$VIRTUALENVWRAPPER_VIRTUALENV" $VIRTUALENVWRAPPER_VIRTUALENV_ARGS "$argv" && \
+if ( $?VIRTUALENVWRAPPER_VIRTUALENV_ARGS ) then
+    set virtualenv_args = "$VIRTUALENVWRAPPER_VIRTUALENV_ARGS"
+else
+    set virtualenv_args
+endif
+
+(cd "$WORKON_HOME" && \
+"$VIRTUALENVWRAPPER_VIRTUALENV" $virtualenv_args "$argv" && \
 test \( -d "$WORKON_HOME/$envname" \) && \
-virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname"
+virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname")
 
 @ RC = $?
 test \( $RC -ne 0 \) && exit $RC
@@ -16,6 +28,6 @@ test \( $RC -ne 0 \) && exit $RC
 # we should switch to the environment and run the hook.
 test \( ! -d "$WORKON_HOME/$envname" \) && exit 0
 # Now activate the new environment
-workon "$envname"
+# workon "$envname"
 virtualenvwrapper_run_hook "post_mkvirtualenv"
-
+unset virtualenv_args
