@@ -195,10 +195,13 @@ alias lsvirtualenv \
       source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \\
       unset argv)'
 
-## Show details of a virtualenv
-##
-## Usage: showvirtualenv [env]
-#showvirtualenv () {
+# Show details of a virtualenv
+#
+# Usage: showvirtualenv [env]
+alias showvirtualenv \
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv; \\
+      unset argv)'
 #    typeset env_name="$1"
 #    if [ -z "$env_name" ]
 #    then

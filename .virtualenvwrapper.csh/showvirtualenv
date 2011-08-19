@@ -1,0 +1,20 @@
+if ( $#argv == 0 ) then
+    set env_name
+else
+    set env_name = "$argv[1]"
+endif
+
+if ( "$env_name" == "" ) then
+    if ( ! $?VIRTUAL_ENV ) then
+        unset env_name
+        echo "showvirtualenv [env]"
+        exit 1
+    endif
+    set env_name = "`basename $VIRTUAL_ENV`"
+endif
+
+echo -n "$env_name"
+virtualenvwrapper_run_hook "get_env_details" "$env_name"
+echo
+
+unset env_name

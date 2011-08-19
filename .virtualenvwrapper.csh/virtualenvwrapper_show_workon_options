@@ -10,16 +10,20 @@ endif
 
 # This is necessary here; if an error occurs in the glob match in the foreach
 # loop I have no way to redirect stderr only
-set activates = (*/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate) >& /dev/null
+set activates = ("$WORKON_HOME/*/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate") \
+    >& /dev/null
 
 if ( $?activates ) then 
     (cd "$WORKON_HOME"; \
-     eval 'foreach f (*/\$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate) \
-     echo $f \
-     end') | sed 's|^\./||' | \
-    sed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" | \
-    sort | egrep -v '^\*$'
+      eval 'foreach f ($activates) \
+      echo $f \
+      end' | sed 's|^\./||' | \
+     sed "s|^$WORKON_HOME/\?||" | \
+     sed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" | \
+     sort | egrep -v '^\*$')
 endif
+
+unset activates
 
 if ( $?grep_options ) then
     setenv GREP_OPTIONS $grep_options
