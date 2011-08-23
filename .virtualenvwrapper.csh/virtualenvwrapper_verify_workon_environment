@@ -1,7 +1,9 @@
 set env_name = "$argv[1]"
 if ( ! -d "$WORKON_HOME/$env_name" ) then
    echo "ERROR: Environment '$env_name' does not exist. Create it with 'mkvirtualenv $env_name'." > /dev/stderr
+   unset env_name
    exit 1
 endif
+unset env_name
 exit 0
 

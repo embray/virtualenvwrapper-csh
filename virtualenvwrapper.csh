@@ -139,9 +139,9 @@ alias virtualenvwrapper_verify_workon_environment \
 # (where the options are passed directly to virtualenv)
 #
 alias mkvirtualenv \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \\
-      unset argv)'
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \\
+     unset argv'
 
 ## Remove an environment, in the WORKON_HOME.
 #rmvirtualenv () {
@@ -202,30 +202,15 @@ alias showvirtualenv \
     '(set argv = (\!:*); \\
       source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv; \\
       unset argv)'
-#    typeset env_name="$1"
-#    if [ -z "$env_name" ]
-#    then
-#        if [ -z "$VIRTUAL_ENV" ]
-#        then
-#            echo "showvirtualenv [env]"
-#            return 1
-#        fi
-#        env_name=$(basename $VIRTUAL_ENV)
-#    fi
-#
-#    echo -n "$env_name"
-#    virtualenvwrapper_run_hook "get_env_details" "$env_name"
-#    echo
-#}
 
 # List or change working virtual environments
 #
 # Usage: workon [environment_name]
 #
 alias workon \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; \\
-      unset argv)'
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; \\
+     unset argv'
 
 
 ## Prints the Python version string for the current interpreter.
