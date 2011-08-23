@@ -143,38 +143,11 @@ alias mkvirtualenv \
      source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \\
      unset argv'
 
-## Remove an environment, in the WORKON_HOME.
-#rmvirtualenv () {
-#    typeset env_name="$1"
-#    virtualenvwrapper_verify_workon_home || return 1
-#    if [ "$env_name" = "" ]
-#    then
-#        echo "Please specify an enviroment." >&2
-#        return 1
-#    fi
-#    env_dir="$WORKON_HOME/$env_name"
-#    if [ "$VIRTUAL_ENV" = "$env_dir" ]
-#    then
-#        echo "ERROR: You cannot remove the active environment ('$env_name')." >&2
-#        echo "Either switch to another environment, or run 'deactivate'." >&2
-#        return 1
-#    fi
-#
-#    # Move out of the current directory to one known to be
-#    # safe, in case we are inside the environment somewhere.
-#    typeset prior_dir="$(pwd)"
-#    \cd "$WORKON_HOME"
-#
-#    virtualenvwrapper_run_hook "pre_rmvirtualenv" "$env_name"
-#    \rm -rf "$env_dir"
-#    virtualenvwrapper_run_hook "post_rmvirtualenv" "$env_name"
-#
-#    # If the directory we used to be in still exists, move back to it.
-#    if [ -d "$prior_dir" ]
-#    then
-#        \cd "$prior_dir"
-#    fi
-#}
+# Remove an environment, in the WORKON_HOME.
+alias rmvirtualenv \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/rmvirtualenv; \\
+     unset argv'
 
 # List the available environments.
 alias virtualenvwrapper_show_workon_options \
