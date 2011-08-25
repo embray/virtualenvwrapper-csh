@@ -232,9 +232,12 @@ alias lssitepackages \
       source ${VIRTUALENVWRAPPER_FUNCDIR}/lssitepackages; \\
       unset argv)'
 
-## Toggles the currently-active virtualenv between having and not having
-## access to the global site-packages.
-#toggleglobalsitepackages () {
+# Toggles the currently-active virtualenv between having and not having
+# access to the global site-packages.
+alias toggleglobalsitepackages \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/toggleglobalsitepackages; \\
+     unset argv'
 #    virtualenvwrapper_verify_workon_home || return 1
 #    virtualenvwrapper_verify_active_environment || return 1
 #    typeset no_global_site_packages_file="`virtualenvwrapper_get_site_packages_dir`/../no-global-site-packages.txt"

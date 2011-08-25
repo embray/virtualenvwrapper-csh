@@ -1,0 +1,25 @@
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_active_environment || exit 1
+set no_global_site_packages_file = "`virtualenvwrapper_get_site_packages_dir`/../no-global-site-packages.txt"
+
+set quiet = "false"
+if ( $#argv != 0 ) then
+    if ( $argv[1] == "-q" )
+        set quiet = "true"
+    endif
+endif
+
+if ( -f $no_global_site_packages_file ) then
+    rm -f "$no_global_site_packages_file"
+    if ( $quiet == "false" ) then
+        echo "Enabled global site-packages"
+    endif
+else
+    touch "$no_global_site_packages_file"
+    if ( $quiet == "false") then
+        echo "Disabled global site-packages"
+    endif
+endif
+
+unset quiet
+unset no_global_site_packages_file
