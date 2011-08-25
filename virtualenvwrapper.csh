@@ -124,14 +124,8 @@ alias virtualenvwrapper_verify_workon_environment \
       unset argv)'
 
 ## Verify that the active environment exists
-#virtualenvwrapper_verify_active_environment () {
-#    if [ ! -n "${VIRTUAL_ENV}" ] || [ ! -d "${VIRTUAL_ENV}" ]
-#    then
-#        echo "ERROR: no virtualenv active, or active virtualenv is missing" >&2
-#        return 1
-#    fi
-#    return 0
-#}
+alias virtualenvwrapper_verify_active_environment \
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_active_environment'
 
 # Create a new environment, in the WORKON_HOME.
 #
@@ -163,6 +157,7 @@ alias _lsvirtualenv_usage ' \\
 # List virtual environments
 #
 # Usage: lsvirtualenv [-l]
+#
 alias lsvirtualenv \
     '(set argv = (\!:*); \\
       source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \\
@@ -171,6 +166,7 @@ alias lsvirtualenv \
 # Show details of a virtualenv
 #
 # Usage: showvirtualenv [env]
+#
 alias showvirtualenv \
     '(set argv = (\!:*); \\
       source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv; \\
@@ -186,103 +182,56 @@ alias workon \
      unset argv'
 
 
-## Prints the Python version string for the current interpreter.
-#virtualenvwrapper_get_python_version () {
-#    # Uses the Python from the virtualenv because we're trying to
-#    # determine the version installed there so we can build
-#    # up the path to the site-packages directory.
-#    python -V 2>&1 | cut -f2 -d' ' | cut -f-2 -d.
-#}
+# Prints the Python version string for the current interpreter.
+# Uses the Python from the virtualenv because we're trying to
+# determine the version installed there so we can build
+# up the path to the site-packages directory.
+alias virtualenvwrapper_get_python_version \
+    "python -V |& cut -f2 -d' ' | cut -f-2 -d."
+# The above is one of the rare cases where it is best to put the alias body in
+# double quotes
+
+# Prints the path to the site-packages directory for the current environment.
+alias virtualenvwrapper_get_site_packages_dir \
+    'echo "$VIRTUAL_ENV/lib/python`virtualenvwrapper_get_python_version`/site-packages"'
+
+
+# Path management for packages outside of the virtual env.
+# Based on a contribution from James Bennett and Jannis Leidel.
 #
-## Prints the path to the site-packages directory for the current environment.
-#virtualenvwrapper_get_site_packages_dir () {
-#    echo "$VIRTUAL_ENV/lib/python`virtualenvwrapper_get_python_version`/site-packages"    
-#}
+# add2virtualenv directory1 directory2 ...
 #
-## Path management for packages outside of the virtual env.
-## Based on a contribution from James Bennett and Jannis Leidel.
-##
-## add2virtualenv directory1 directory2 ...
-##
-## Adds the specified directories to the Python path for the
-## currently-active virtualenv. This will be done by placing the
-## directory names in a path file named
-## "virtualenv_path_extensions.pth" inside the virtualenv's
-## site-packages directory; if this file does not exist, it will be
-## created first.
-#add2virtualenv () {
-#
-#    virtualenvwrapper_verify_workon_home || return 1
-#    virtualenvwrapper_verify_active_environment || return 1
-#    
-#    site_packages="`virtualenvwrapper_get_site_packages_dir`"
-#    
-#    if [ ! -d "${site_packages}" ]
-#    then
-#        echo "ERROR: currently-active virtualenv does not appear to have a site-packages directory" >&2
-#        return 1
-#    fi
-#    
-#    path_file="$site_packages/virtualenv_path_extensions.pth"
-#
-#    if [ "$*" = "" ]
-#    then
-#        echo "Usage: add2virtualenv dir [dir ...]"
-#        if [ -f "$path_file" ]
-#        then
-#            echo
-#            echo "Existing paths:"
-#            cat "$path_file"
-#        fi
-#        return 1
-#    fi
-#
-#    touch "$path_file"
-#    for pydir in "$@"
-#    do
-#        absolute_path=$("$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.abspath(\"$pydir\")")
-#        if [ "$absolute_path" != "$pydir" ]
-#        then
-#            echo "Warning: Converting \"$pydir\" to \"$absolute_path\"" 1>&2
-#        fi
-#        echo "$absolute_path" >> "$path_file"
-#    done
-#    return 0
-#}
-#
-## Does a ``cd`` to the site-packages directory of the currently-active
-## virtualenv.
-#cdsitepackages () {
-#    virtualenvwrapper_verify_workon_home || return 1
-#    virtualenvwrapper_verify_active_environment || return 1
-#    typeset site_packages="`virtualenvwrapper_get_site_packages_dir`"
-#    \cd "$site_packages"/$1
-#}
-#
-## Does a ``cd`` to the root of the currently-active virtualenv.
-#cdvirtualenv () {
-#    virtualenvwrapper_verify_workon_home || return 1
-#    virtualenvwrapper_verify_active_environment || return 1
-#    \cd $VIRTUAL_ENV/$1
-#}
-#
-## Shows the content of the site-packages directory of the currently-active
-## virtualenv
-#lssitepackages () {
-#    virtualenvwrapper_verify_workon_home || return 1
-#    virtualenvwrapper_verify_active_environment || return 1
-#    typeset site_packages="`virtualenvwrapper_get_site_packages_dir`"
-#    ls $@ $site_packages
-#    
-#    path_file="$site_packages/virtualenv_path_extensions.pth"
-#    if [ -f "$path_file" ]
-#    then
-#        echo
-#        echo "virtualenv_path_extensions.pth:"
-#        cat "$path_file"
-#    fi
-#}
-#
+# Adds the specified directories to the Python path for the
+# currently-active virtualenv. This will be done by placing the
+# directory names in a path file named
+# "virtualenv_path_extensions.pth" inside the virtualenv's
+# site-packages directory; if this file does not exist, it will be
+# created first.
+alias add2virtualenv \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/add2virtualenv; \\
+     unset argv'
+     
+# Does a ``cd`` to the site-packages directory of the currently-active
+# virtualenv.
+alias cdsitepackages \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/cdsitepackages; \\
+     unset argv'
+
+# Does a ``cd`` to the root of the currently-active virtualenv.
+alias cdvirtualenv \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/cdvirtualenv; \\
+     unset argv'
+
+# Shows the content of the site-packages directory of the currently-active
+# virtualenv
+alias lssitepackages \
+    '(set argv = (\!:*); \\
+      source ${VIRTUALENVWRAPPER_FUNCDIR}/lssitepackages; \\
+      unset argv)'
+
 ## Toggles the currently-active virtualenv between having and not having
 ## access to the global site-packages.
 #toggleglobalsitepackages () {

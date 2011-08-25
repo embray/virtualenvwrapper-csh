@@ -1,0 +1,7 @@
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_active_environment || exit 1
+if ( $#argv != 0 ) then
+    cd "`virtualenvwrapper_get_site_packages_dir`/$argv[1]"
+else
+    cd "`virtualenvwrapper_get_site_packages_dir`"
+endif
