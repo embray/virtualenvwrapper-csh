@@ -1,0 +1,92 @@
+if ( $#argv == 0 ) then
+    set env_name
+else
+    set env_name = "$argv[1]"
+endif
+
+if ( "$env_name" == "" ) then
+    virtualenvwrapper_show_workon_options
+    unset env_name
+    exit 1
+endif
+
+if ( $#argv < 2 ) then
+    set new_env
+else
+    set new_env = "$argv[2]"
+endif
+
+if ( "$new_env" == "" ) then
+    echo "Please specify target virtualenv"
+    unset new_env
+    unset env_name
+    exit 1
+endif
+
+if ( $?GREP_OPTIONS ) then
+    set grep_options = "$GREP_OPTIONS"
+    unsetenv GREP_OPTIONS
+endif
+
+echo "$WORKON_HOME" | grep '/$' > /dev/null
+
+if ( $? == 0 ) then
+    set env_home = "$WORKON_HOME"
+else
+    set env_home = "$WORKON_HOME/"
+endif
+
+if ( $?grep_options ) then
+    setenv GREP_OPTIONS $grep_options
+    unset grep_options
+endif
+
+set source_env = "$env_home$env_name"
+set target_env = "$env_home$new_env"
+
+if ( ! -e "$source_env" ) then
+    echo "$env_name virtualenv doesn't exist"
+    # XXX Maybe goto a label for this? Does csh support that?
+    unset target_env
+    unset source_env
+    unset env_home
+    unset new_env
+    unset env_name
+    exit 1
+endif
+
+cp -r "$source_env" "$target_env"
+set scripts = "$target_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/"* >& /dev/null
+if ( $?scripts == 0 ) then
+    set scripts = ()
+endif
+
+foreach script ($scripts)
+    set newscript = "${script}-new"
+    sed "s|$source_env|$target_env|g" < "$script" > "$newscript"
+    mv "$newscript" "$script"
+    chmod a+x "$script"
+end
+
+unset newscript
+unset script
+unset scripts
+
+"$VIRTUALENVWRAPPER_VIRTUALENV" "$target_env" --relocatable
+sed "s/VIRTUAL_ENV\(.*\)$env_name/VIRTUAL_ENV\1$new_env/g" < "$source_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate" > "$target_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate"
+
+(cd "$WORKON_HOME" && ( \
+    virtualenvwrapper_run_hook "pre_cpvirtualenv" "$env_name" "$new_env"; \
+    virtualenvwrapper_run_hook "pre_mkvirtualenv" "$new_env" ))
+
+workon "$new_env"
+
+virtualenvwrapper_run_hook "post_mkvirtualenv"
+virtualenvwrapper_run_hook "post_cpvirtualenv"
+
+unset target_env
+unset source_env
+unset env_home
+unset new_env
+unset env_name
+

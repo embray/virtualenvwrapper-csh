@@ -1,4 +1,8 @@
-set workon_home_dir = "$WORKON_HOME"
+if ( $?WORKON_HOME ) then
+    set workon_home_dir = "$WORKON_HOME"
+else
+    set workon_home_dir
+endif
 
 # Make sure there is a default value for WORKON_HOME
 # You can override this setting in your .bashrc.

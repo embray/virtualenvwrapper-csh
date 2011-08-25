@@ -32,8 +32,10 @@
 #     (mkdir $HOME/.virtualenvs).
 #  2. Add a line like "export WORKON_HOME=$HOME/.virtualenvs"
 #     to your .cshrc.
-#  3. Add a line like "source /path/to/this/file/virtualenvwrapper.csh"
-#     to your .cshrc.
+#  3. Add a line like: 
+#     "source /path/to/virtualenvwrapper.csh /path/to/virtualenvwrapper.csh"
+#     to your .cshrc.  Note that the path must be given twice when sourcing
+#     the csh version of this script.
 #  4. Run: source ~/.cshrc
 #  5. Run: workon
 #  6. A list of environments, empty, is printed.
@@ -44,11 +46,21 @@
 # 11. The virtual environment is activated.
 #
 
-# This is the source command used to run this file; it should be sourced rather
-# than executed as a script
-set VIRTUALENVWRAPPER_COMMAND = ($_)
+# This is the path to the virtualenvwrapper script, it should be sourced rather
+# than run directly, but it needs its own path passed in as an argument
+
+if ( $# == 0 ) then
+    echo > /dev/stderr
+    echo "When sourcing virtualenvwrapper.csh, the path to the script itself must be" > /dev/stderr
+    echo "passed as an argument." > /dev/stderr
+    echo "(e.g. source /usr/bin/virtualenvwrapper.csh /usr/bin/virtualenvwrapper.csh)" > /dev/stderr
+    echo > /dev/stderr
+    exit 1
+endif
+
+set VIRTUALENVWRAPPER_SCRIPT = "$1"
 # The directory containing virtualenvwrapper.csh
-set VIRTUALENVWRAPPER_SCRIPTDIR = "`dirname $VIRTUALENVWRAPPER_COMMAND[2]`"
+set VIRTUALENVWRAPPER_SCRIPTDIR = "`dirname $VIRTUALENVWRAPPER_SCRIPT`"
 
 # Files to cleanup upon exit
 set VIRTUALENVWRAPPER_CLEANUP = ()
@@ -238,67 +250,12 @@ alias toggleglobalsitepackages \
     'set argv = (\!:*); \\
      source ${VIRTUALENVWRAPPER_FUNCDIR}/toggleglobalsitepackages; \\
      unset argv'
-#    virtualenvwrapper_verify_workon_home || return 1
-#    virtualenvwrapper_verify_active_environment || return 1
-#    typeset no_global_site_packages_file="`virtualenvwrapper_get_site_packages_dir`/../no-global-site-packages.txt"
-#    if [ -f $no_global_site_packages_file ]; then
-#        rm $no_global_site_packages_file
-#        [ "$1" = "-q" ] || echo "Enabled global site-packages"
-#    else
-#        touch $no_global_site_packages_file
-#        [ "$1" = "-q" ] || echo "Disabled global site-packages"
-#    fi
-#}
-#
-## Duplicate the named virtualenv to make a new one.
-#cpvirtualenv() {
-#    typeset env_name="$1"
-#    if [ "$env_name" = "" ]
-#    then
-#        virtualenvwrapper_show_workon_options
-#        return 1
-#    fi
-#    typeset new_env="$2"
-#    if [ "$new_env" = "" ]
-#    then
-#        echo "Please specify target virtualenv"
-#        return 1
-#    fi
-#    if echo "$WORKON_HOME" | (unset GREP_OPTIONS; \grep "/$" > /dev/null)
-#    then
-#        typeset env_home="$WORKON_HOME"
-#    else
-#        typeset env_home="$WORKON_HOME/"
-#    fi
-#    typeset source_env="$env_home$env_name"
-#    typeset target_env="$env_home$new_env"
-#    
-#    if [ ! -e "$source_env" ]
-#    then
-#        echo "$env_name virtualenv doesn't exist"
-#        return 1
-#    fi
-#
-#    \cp -r "$source_env" "$target_env"
-#    for script in $( \ls $target_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/* )
-#    do
-#        newscript="$script-new"
-#        \sed "s|$source_env|$target_env|g" < "$script" > "$newscript"
-#        \mv "$newscript" "$script"
-#        \chmod a+x "$script"
-#    done
-#
-#    "$VIRTUALENVWRAPPER_VIRTUALENV" "$target_env" --relocatable
-#    \sed "s/VIRTUAL_ENV\(.*\)$env_name/VIRTUAL_ENV\1$new_env/g" < "$source_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate" > "$target_env/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate"
-#
-#    (\cd "$WORKON_HOME" && ( 
-#        virtualenvwrapper_run_hook "pre_cpvirtualenv" "$env_name" "$new_env";
-#        virtualenvwrapper_run_hook "pre_mkvirtualenv" "$new_env"
-#        ))
-#    workon "$new_env"
-#    virtualenvwrapper_run_hook "post_mkvirtualenv"
-#    virtualenvwrapper_run_hook "post_cpvirtualenv"
-#}
+
+# Duplicate the named virtualenv to make a new one.
+alias cpvirtualenv \
+    'set argv = (\!:*); \\
+     source ${VIRTUALENVWRAPPER_FUNCDIR}/cpvirtualenv; \\
+     unset argv'
 
 #
 # Invoke the initialization hooks
