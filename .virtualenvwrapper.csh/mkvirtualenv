@@ -17,7 +17,7 @@ else
 endif
 
 (cd "$WORKON_HOME" && \
-"$VIRTUALENVWRAPPER_VIRTUALENV" $virtualenv_args "$argv" && \
+"$VIRTUALENVWRAPPER_VIRTUALENV" $virtualenv_args $argv && \
 test \( -d "$WORKON_HOME/$envname" \) && \
 virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname")
 
