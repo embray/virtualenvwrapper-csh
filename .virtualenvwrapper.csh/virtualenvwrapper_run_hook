@@ -1,4 +1,4 @@
-set hook_script="`virtualenvwrapper_tempfile ${argv[1]}-hook`"
+set hook_script="`virtualenvwrapper_tempfile ${1}-hook`"
 if ( "$hook_script" == "" ) then
     echo "ERROR: Could not create temporary file name. Make sure TMPDIR is set." > /dev/stderr
     exit 1

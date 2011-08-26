@@ -5,11 +5,11 @@ if ( $#argv == 0 ) then
     exit 1
 endif
 
-set env_name = "$argv[1]"
+set env_name = "$1"
 
-virtualenvwrapper_verify_workon_home || (unset env_name; exit 1)
+virtualenvwrapper_verify_workon_home || unset env_name && exit 1
 virtualenvwrapper_verify_workon_environment "$env_name" || \
-    (unset env_name; exit 1)
+    unset env_name && exit 1
 
 set activate = \
     "$WORKON_HOME/$env_name/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate.csh"

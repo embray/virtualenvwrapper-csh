@@ -1,8 +1,4 @@
-if ( $#argv == 0 ) then
-    set env_name
-else
-    set env_name = "$argv[1]"
-endif
+set env_name = "$1"
 
 if ( "$env_name" == "" ) then
     virtualenvwrapper_show_workon_options
@@ -10,11 +6,7 @@ if ( "$env_name" == "" ) then
     exit 1
 endif
 
-if ( $#argv < 2 ) then
-    set new_env
-else
-    set new_env = "$argv[2]"
-endif
+set new_env = "$2"
 
 if ( "$new_env" == "" ) then
     echo "Please specify target virtualenv"

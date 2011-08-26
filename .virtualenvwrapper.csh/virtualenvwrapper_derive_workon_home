@@ -7,7 +7,7 @@ endif
 # Make sure there is a default value for WORKON_HOME
 # You can override this setting in your .bashrc.
 if ( "$workon_home_dir" == "" ) then
-    set workon_home_dir = "$HOME/.virtualenvs"
+    set workon_home_dir = "`readlink -f $HOME/.virtualenvs`"
 endif
 
 if ( $?GREP_OPTIONS ) then

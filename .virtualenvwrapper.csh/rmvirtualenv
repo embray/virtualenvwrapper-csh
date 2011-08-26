@@ -1,8 +1,4 @@
-if ( $#argv == 0 ) then
-    set env_name
-else
-    set env_name = "$argv[1]"
-endif
+set env_name = "$1"
 
 virtualenvwrapper_verify_workon_home || unset env_name && exit 1
 if ( "$env_name" == "" ) then

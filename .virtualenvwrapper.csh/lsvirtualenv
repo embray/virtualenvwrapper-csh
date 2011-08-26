@@ -2,6 +2,8 @@ set long_mode = true
 set args = (`getopt blh "$argv"`)
 if ( $? != 0 ) then
     _lsvirtualenv_usage
+    unset args
+    unset long_mode
     exit 1
 endif
 
@@ -15,7 +17,9 @@ foreach opt ($args)
             breaksw
         case -h:
             _lsvirtualenv_usage
-            exit
+            unset args
+            unset long_mode
+            exit 0
     endsw
 end
 
@@ -27,3 +31,5 @@ else
     virtualenvwrapper_show_workon_options
 endif
 
+unset args
+unset long_mode

@@ -111,15 +111,11 @@ set HOOK_VERBOSE_OPTION = "-q"
 
 # Expects 1 argument, the suffix for the new file.
 alias virtualenvwrapper_tempfile \
-    '(set argv = (\!:1); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile; \\
-      unset argv)'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile \!:*'
 
 # Run the hooks
 alias virtualenvwrapper_run_hook \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook; \\
-      unset argv)'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook \!:*'
 
 # Set up virtualenvwrapper properly
 alias virtualenvwrapper_initialize \
@@ -131,9 +127,7 @@ alias virtualenvwrapper_verify_virtualenv \
 
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment; \\
-      unset argv)'
+    '(source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment \!:*)'
 
 ## Verify that the active environment exists
 alias virtualenvwrapper_verify_active_environment \
@@ -145,15 +139,11 @@ alias virtualenvwrapper_verify_active_environment \
 # (where the options are passed directly to virtualenv)
 #
 alias mkvirtualenv \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv \!:*'
 
 # Remove an environment, in the WORKON_HOME.
 alias rmvirtualenv \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/rmvirtualenv; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/rmvirtualenv \!:*'
 
 # List the available environments.
 alias virtualenvwrapper_show_workon_options \
@@ -171,27 +161,21 @@ alias _lsvirtualenv_usage ' \\
 # Usage: lsvirtualenv [-l]
 #
 alias lsvirtualenv \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv; \\
-      unset argv)'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv \!:*'
 
 # Show details of a virtualenv
 #
 # Usage: showvirtualenv [env]
 #
 alias showvirtualenv \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv; \\
-      unset argv)'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv \!:*'
 
 # List or change working virtual environments
 #
 # Usage: workon [environment_name]
 #
 alias workon \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/workon; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/workon \!:*'
 
 
 # Prints the Python version string for the current interpreter.
@@ -220,44 +204,32 @@ alias virtualenvwrapper_get_site_packages_dir \
 # site-packages directory; if this file does not exist, it will be
 # created first.
 alias add2virtualenv \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/add2virtualenv; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/add2virtualenv \!:*'
      
 # Does a ``cd`` to the site-packages directory of the currently-active
 # virtualenv.
 alias cdsitepackages \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/cdsitepackages; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cdsitepackages \!:*'
 
 # Does a ``cd`` to the root of the currently-active virtualenv.
 alias cdvirtualenv \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/cdvirtualenv; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cdvirtualenv \!:*'
 
 # Shows the content of the site-packages directory of the currently-active
 # virtualenv
 alias lssitepackages \
-    '(set argv = (\!:*); \\
-      source ${VIRTUALENVWRAPPER_FUNCDIR}/lssitepackages; \\
-      unset argv)'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/lssitepackages \!:*'
 
 # Toggles the currently-active virtualenv between having and not having
 # access to the global site-packages.
 alias toggleglobalsitepackages \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/toggleglobalsitepackages; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/toggleglobalsitepackages \!:*'
 
 # Duplicate the named virtualenv to make a new one.
 alias cpvirtualenv \
-    'set argv = (\!:*); \\
-     source ${VIRTUALENVWRAPPER_FUNCDIR}/cpvirtualenv; \\
-     unset argv'
+    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cpvirtualenv \!:*'
 
-#
+
 # Invoke the initialization hooks
 #
 virtualenvwrapper_initialize

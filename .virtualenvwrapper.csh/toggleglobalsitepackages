@@ -3,10 +3,8 @@ virtualenvwrapper_verify_active_environment || exit 1
 set no_global_site_packages_file = "`virtualenvwrapper_get_site_packages_dir`/../no-global-site-packages.txt"
 
 set quiet = "false"
-if ( $#argv != 0 ) then
-    if ( $argv[1] == "-q" )
-        set quiet = "true"
-    endif
+if ( "$1" == "-q" )
+    set quiet = "true"
 endif
 
 if ( -f $no_global_site_packages_file ) then
