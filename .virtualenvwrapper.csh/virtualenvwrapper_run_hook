@@ -7,7 +7,7 @@ if ( "$VIRTUALENVWRAPPER_LOG_DIR" == "" ) then
     echo "ERROR: VIRTUALENVWRAPPER_LOG_DIR is not set." > /dev/stderr
     exit 1
 endif
-"$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" "$argv"
+"$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" $argv
 set result = $?
 
 if ( $result == 0 ) then
