@@ -32,10 +32,8 @@
 #     (mkdir $HOME/.virtualenvs).
 #  2. Add a line like "export WORKON_HOME=$HOME/.virtualenvs"
 #     to your .cshrc.
-#  3. Add a line like: 
-#     "source /path/to/virtualenvwrapper.csh /path/to/virtualenvwrapper.csh"
-#     to your .cshrc.  Note that the path must be given twice when sourcing
-#     the csh version of this script.
+#  3. Add a line like "source /path/to/virtualenvwrapper.csh "
+#     to your .cshrc.
 #  4. Run: source ~/.cshrc
 #  5. Run: workon
 #  6. A list of environments, empty, is printed.
@@ -49,31 +47,29 @@
 # This is the path to the virtualenvwrapper script, it should be sourced rather
 # than run directly, but it needs its own path passed in as an argument
 
-if ( $# == 0 ) then
-    echo > /dev/stderr
-    echo "When sourcing virtualenvwrapper.csh, the path to the script itself must be" > /dev/stderr
-    echo "passed as an argument." > /dev/stderr
-    echo "(e.g. source /usr/bin/virtualenvwrapper.csh /usr/bin/virtualenvwrapper.csh)" > /dev/stderr
-    echo > /dev/stderr
-    exit 1
-endif
-
-set VIRTUALENVWRAPPER_SCRIPT = "$1"
-# The directory containing virtualenvwrapper.csh
-set VIRTUALENVWRAPPER_SCRIPTDIR = "`dirname $VIRTUALENVWRAPPER_SCRIPT`"
-
 # Files to cleanup upon exit
 set VIRTUALENVWRAPPER_CLEANUP = ()
 onintr cleanup
 
 # Locate the global Python where virtualenvwrapper is installed.
 if ( ! $?VIRTUALENVWRAPPER_PYTHON ) then
-    set VIRTUALENVWRAPPER_PYTHON="`which python`"
+    set VIRTUALENVWRAPPER_PYTHON = "`which python`"
 endif
 
 # Set the name of the virtualenv app to use.
 if ( ! $?VIRTUALENVWRAPPER_VIRTUALENV ) then
-    set VIRTUALENVWRAPPER_VIRTUALENV="virtualenv"
+    set VIRTUALENVWRAPPER_VIRTUALENV = "virtualenv"
+endif
+
+if ( ! $?VIRTUALENVWRAPPER_LIB_PATH ) then
+    set VIRTUALENVWRAPPER_LIB_PATH = \
+        `"$VIRTUALENVWRAPPER_PYTHON" -c \
+            'import virtualenvwrapper, os; print os.path.abspath(virtualenvwrapper.__path__[0])'`
+endif
+
+if ( ! $?VIRTUALENVWRAPPER_SCRIPT_PATH ) then
+    set VIRTUALENVWRAPPER_SCRIPT_PATH = \
+        "$VIRTUALENVWRAPPER_LIB_PATH/virtualenvwrapper.csh"
 endif
 
 # Define script folder depending on the platorm (Win32/Unix)
@@ -88,50 +84,41 @@ if ( $?OS && $?MSYSTEM ) then
     endif
 endif
 
-# Set VIRTUALENVWRAPPER_SCRIPTDIR to its absolute path
-# Get the absolute path...
-set VIRTUALENVWRAPPER_SCRIPTDIR = \
-    `"$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.abspath('$VIRTUALENVWRAPPER_SCRIPTDIR')"`
-
-# The directory containing 'functions' for virtualenvwrapper.csh
-set VIRTUALENVWRAPPER_FUNCDIR = \
-    "${VIRTUALENVWRAPPER_SCRIPTDIR}/.virtualenvwrapper.csh"
-
 alias virtualenvwrapper_derive_workon_home \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_derive_workon_home'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_derive_workon_home'
 
 # Check if the WORKON_HOME directory exists,
 # create it if it does not
 # seperate from creating the files in it because this used to just error
 # and maybe other things rely on the dir existing before that happens.
 alias virtualenvwrapper_verify_workon_home \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_home'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_workon_home'
 
 set HOOK_VERBOSE_OPTION = "-q"
 
 # Expects 1 argument, the suffix for the new file.
 alias virtualenvwrapper_tempfile \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_tempfile \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_tempfile \!:*'
 
 # Run the hooks
 alias virtualenvwrapper_run_hook \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_run_hook \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_run_hook \!:*'
 
 # Set up virtualenvwrapper properly
 alias virtualenvwrapper_initialize \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_initialize'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_initialize'
 
 # Verify that virtualenv is installed and visible
 alias virtualenvwrapper_verify_virtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_virtualenv'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_virtualenv'
 
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
-    '(source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_workon_environment \!:*)'
+    '(source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_workon_environment \!:*)'
 
 ## Verify that the active environment exists
 alias virtualenvwrapper_verify_active_environment \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_verify_active_environment'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_active_environment'
 
 # Create a new environment, in the WORKON_HOME.
 #
@@ -139,15 +126,15 @@ alias virtualenvwrapper_verify_active_environment \
 # (where the options are passed directly to virtualenv)
 #
 alias mkvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/mkvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mkvirtualenv \!:*'
 
 # Remove an environment, in the WORKON_HOME.
 alias rmvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/rmvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/rmvirtualenv \!:*'
 
 # List the available environments.
 alias virtualenvwrapper_show_workon_options \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/virtualenvwrapper_show_workon_options'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_show_workon_options'
 
 alias _lsvirtualenv_usage ' \\
     (echo "lsvirtualenv [-blh]"; \\
@@ -161,21 +148,21 @@ alias _lsvirtualenv_usage ' \\
 # Usage: lsvirtualenv [-l]
 #
 alias lsvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/lsvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/lsvirtualenv \!:*'
 
 # Show details of a virtualenv
 #
 # Usage: showvirtualenv [env]
 #
 alias showvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/showvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/showvirtualenv \!:*'
 
 # List or change working virtual environments
 #
 # Usage: workon [environment_name]
 #
 alias workon \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/workon \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/workon \!:*'
 
 
 # Prints the Python version string for the current interpreter.
@@ -204,30 +191,30 @@ alias virtualenvwrapper_get_site_packages_dir \
 # site-packages directory; if this file does not exist, it will be
 # created first.
 alias add2virtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/add2virtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/add2virtualenv \!:*'
      
 # Does a ``cd`` to the site-packages directory of the currently-active
 # virtualenv.
 alias cdsitepackages \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cdsitepackages \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/cdsitepackages \!:*'
 
 # Does a ``cd`` to the root of the currently-active virtualenv.
 alias cdvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cdvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/cdvirtualenv \!:*'
 
 # Shows the content of the site-packages directory of the currently-active
 # virtualenv
 alias lssitepackages \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/lssitepackages \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/lssitepackages \!:*'
 
 # Toggles the currently-active virtualenv between having and not having
 # access to the global site-packages.
 alias toggleglobalsitepackages \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/toggleglobalsitepackages \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/toggleglobalsitepackages \!:*'
 
 # Duplicate the named virtualenv to make a new one.
 alias cpvirtualenv \
-    'source ${VIRTUALENVWRAPPER_FUNCDIR}/cpvirtualenv \!:*'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/cpvirtualenv \!:*'
 
 
 # Invoke the initialization hooks

@@ -141,7 +141,7 @@ setup(
     platforms = ['Any'],
 
     scripts = ['virtualenvwrapper.sh',
-               'virtualenvwrapper.csh'
+               'virtualenvwrapper.csh',
                ],
 
     provides=['virtualenvwrapper',
