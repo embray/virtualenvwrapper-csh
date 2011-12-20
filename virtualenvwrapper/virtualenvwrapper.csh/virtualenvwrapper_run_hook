@@ -1,0 +1,24 @@
+set hook_script="`virtualenvwrapper_tempfile ${1}-hook`"
+if ( "$hook_script" == "" ) then
+    echo "ERROR: Could not create temporary file name. Make sure TMPDIR is set." > /dev/stderr
+    exit 1
+endif
+if ( "$VIRTUALENVWRAPPER_LOG_DIR" == "" ) then
+    echo "ERROR: VIRTUALENVWRAPPER_LOG_DIR is not set." > /dev/stderr
+    exit 1
+endif
+"$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' $HOOK_VERBOSE_OPTION --script "$hook_script" $argv
+set result = $?
+
+if ( $result == 0 ) then
+    if ( ! -f "$hook_script" ) then
+        echo "ERROR: virtualenvwrapper_run_hook could not find temporary file $hook_script" > /dev/stderr
+        exit 2
+    endif
+    source "$hook_script"
+endif
+rm -f "$hook_script" >& /dev/null
+
+unset hook_script
+exit $result
+

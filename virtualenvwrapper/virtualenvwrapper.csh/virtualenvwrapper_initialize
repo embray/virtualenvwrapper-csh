@@ -1,0 +1,23 @@
+setenv WORKON_HOME "`virtualenvwrapper_derive_workon_home`"
+
+virtualenvwrapper_verify_workon_home -q || exit 1
+
+# Set the location of the hook scripts
+if ( ! $?VIRTUALENVWRAPPER_HOOK_DIR ) then
+    setenv VIRTUALENVWRAPPER_HOOK_DIR "$WORKON_HOME"
+endif
+
+# Set the location of the hook script logs
+if ( ! $?VIRTUALENVWRAPPER_LOG_DIR ) then
+    setenv VIRTUALENVWRAPPER_LOG_DIR "$WORKON_HOME"
+endif
+
+virtualenvwrapper_run_hook "initialize"
+if ( $? != 0 ) then
+    echo "virtualenvwrapper.csh: There was a problem running the initialization hooks. If Python could not import the module virtualenvwrapper.hook_loader, check that virtualenv has been installed for VIRTUALENVWRAPPER_PYTHON=$VIRTUALENVWRAPPER_PYTHON and that PATH is set properly." > /dev/stderr
+    exit 1
+endif
+
+# I don't think it's possible to implement this feature in [t]csh
+# virtualenvwrapper_setup_tab_completion
+

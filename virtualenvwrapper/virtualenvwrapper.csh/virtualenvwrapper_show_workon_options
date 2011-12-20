@@ -1,0 +1,32 @@
+virtualenvwrapper_verify_workon_home || return 1
+
+# NOTE: DO NOT use ls here because colorized versions spew control characters
+#       into the output list.
+# echo seems a little faster than find, even with -depth 3.
+if ( $?GREP_OPTIONS ) then
+    set grep_options = "$GREP_OPTIONS"
+    unsetenv GREP_OPTIONS
+endif
+
+# This is necessary here; if an error occurs in the glob match in the foreach
+# loop I have no way to redirect stderr only
+set activates = ("$WORKON_HOME/*/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate") \
+    >& /dev/null
+
+if ( $?activates ) then 
+    (cd "$WORKON_HOME"; \
+      eval 'foreach f ($activates) \
+      echo $f \
+      end' | sed 's|^\./||' | \
+     sed "s|^$WORKON_HOME/\?||" | \
+     sed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" | \
+     sort | egrep -v '^\*$')
+endif
+
+unset activates
+
+if ( $?grep_options ) then
+    setenv GREP_OPTIONS $grep_options
+    unset grep_options
+endif
+

@@ -1,0 +1,40 @@
+set env_name = "$1"
+
+virtualenvwrapper_verify_workon_home || unset env_name && exit 1
+if ( "$env_name" == "" ) then
+    echo "Please specify an enviroment." > /dev/stderr
+    exit 1
+endif
+
+set env_dir = "$WORKON_HOME/$env_name"
+if ( $?VIRTUAL_ENV ) then
+    if ( "$VIRTUAL_ENV" == "$env_dir" ) then
+        echo "ERROR: You cannot remove the active environment ('$env_name')." \
+            > /dev/stderr
+        echo "Either switch to another environment, or run 'deactivate'." \
+            > /dev/stderr
+        unset env_name
+        unset env_dir
+        exit 1
+    endif
+endif
+
+# Move out of the current directory to one known to be
+# safe, in case we are inside the environment somewhere.
+set prior_dir = "$cwd"
+cd "$WORKON_HOME"
+
+virtualenvwrapper_run_hook "pre_rmvirtualenv" "$env_name"
+rm -rf "$env_dir"
+virtualenvwrapper_run_hook "post_rmvirtualenv" "$env_name"
+
+# If the directory we used to be in still exists, move back to it.
+if ( -d "$prior_dir" ) then
+    cd "$prior_dir"
+endif
+
+unset env_name
+unset env_dir
+unset prior_dir
+
+
