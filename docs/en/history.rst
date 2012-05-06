@@ -8,6 +8,11 @@ dev
     intended to be executed on the command line. (contributed by
     :bbuser:`ralphbean`)
   - Worked on some brittle tests.
+  - Received updates to Japanese translation of the documentation from
+    :bbuser:`t2y`.
+  - Fix the test script and runner so the user's ``$WORKON_HOME`` is
+    not erased if they do not have some test shells installed.
+    (big thanks to :bbuser:`agriffis`).
 
 3.2
 
