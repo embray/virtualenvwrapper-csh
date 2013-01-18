@@ -1,0 +1,12 @@
+set venv = "$1"
+set prj="$2"
+if ( "$venv" == "" ) then
+    set venv = "$VIRTUAL_ENV"
+endif
+if ( "$prj" == "" ) then
+    set prj = "$(pwd)"
+endif
+echo "Setting project for `basename $venv` to $prj"
+echo "$prj" > "$venv/$VIRTUALENVWRAPPER_PROJECT_FILENAME"
+unset venv
+unset prj

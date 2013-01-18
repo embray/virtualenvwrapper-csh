@@ -1,0 +1,24 @@
+if ( $?GREP_OPTIONS ) then
+    set grep_options = "$GREP_OPTIONS"
+    unsetenv GREP_OPTIONS
+endif
+
+set exe_path = `w\hich "$1" | g\rep -v "not found"`
+if ( "$exe_path" == "" ) then
+    echo "ERROR: virtualenvwrapper could not find $1 in your path" > /dev/stderr
+    unset exe_path
+    exit 1
+endif
+if ( ! -e "$exe_path" ) then
+    echo "ERROR: Found $1 in path as \"$exe_path\" but that does not exist" > /dev/stderr
+    unset exe_path
+    exit 1
+endif
+
+if ( $?grep_options ) then
+    setenv GREP_OPTIONS $grep_options
+    unset grep_options
+endif
+
+unset exe_path
+exit 0

@@ -1,0 +1,68 @@
+set in_args = ($*)
+set out_args = ()
+set i = 1
+set templates
+
+while ( $i <= $#argv )
+    set a = "$in_args[$i]"
+    # echo "arg $i : $a"
+    switch ( "$a" )
+        case -h:
+            mkproject_help
+            exit
+        case --help:
+            mkproject_help
+            exit
+        case -t:
+            @ i += 1
+            set templates = "$templates ${in_args[$i]}"
+            breaksw
+        default:
+            if ( ${#out_args} > 0 ) then
+                set out_args = ( ${out_args[*]} "$a" )
+            else
+                set out_args = ( "$a" )
+            endif
+    endsw
+    @ i += 1
+end
+unset in_args
+unset out_args
+unset a
+unset i
+
+# this conflicts with envname in mkvirtualenv
+set envpname = "$argv[$#argv]"
+virtualenvwrapper_verify_project_home || unset templates && unset envpname && exit 1
+# RP: will fail otherwise
+test \( ! -z $envpname \) || unset templates && unset envpname && exit 1
+
+if ( -d "$PROJECT_HOME/$envpname" ) then
+    echo "Project $envpname already exists." > /dev/stderr
+    unset templates
+    unset envpname
+    exit 1
+endif
+
+mkvirtualenv "$envpname" || unset templates && unset envpname && exit 1
+
+cd "$PROJECT_HOME"
+
+virtualenvwrapper_run_hook "project.pre_mkproject" $envpname
+
+echo "Creating $PROJECT_HOME/$envpname"
+mkdir -p "$PROJECT_HOME/$envpname"
+setvirtualenvproject "$VIRTUAL_ENV" "$PROJECT_HOME/$envpname"
+
+cd "$PROJECT_HOME/$envpname"
+
+foreach t ( $templates )
+    echo
+    echo "Applying template $t"
+    virtualenvwrapper_run_hook --name $t "project.template" $envpname
+end
+
+virtualenvwrapper_run_hook "project.post_mkproject"
+
+unset templates
+unset envpname

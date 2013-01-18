@@ -1,0 +1,20 @@
+echo "Usage: mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] env_name"
+echo
+echo " -a project_path"
+echo
+echo "    Provide a full path to a project directory to associate with"
+echo "    the new environment."
+echo
+echo " -i package"
+echo
+echo "    Install a package after the environment is created."
+echo "    This option may be repeated."
+echo
+echo " -r requirements_file"
+echo
+echo "    Provide a pip requirements file to install a base set of packages"
+echo "    into the new environment."
+echo;
+echo 'virtualenv help:';
+echo;
+"$VIRTUALENVWRAPPER_VIRTUALENV" $*;
