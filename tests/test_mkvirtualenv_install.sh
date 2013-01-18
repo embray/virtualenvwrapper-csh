@@ -1,10 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -23,16 +20,16 @@ setUp () {
 }
 
 test_single_package () {
-    mkvirtualenv -i commandlineapp "env4" >/dev/null 2>&1
+    mkvirtualenv -i IPy "env4"
     installed=$(pip freeze)
-    assertTrue "CommandLineApp not found in $installed" "echo $installed | grep CommandLineApp"
+    assertTrue "IPy not found in $installed" "pip freeze | grep IPy"
 }
 
 test_multiple_packages () {
-    mkvirtualenv -i commandlineapp -i csvcat "env4" >/dev/null 2>&1
+    mkvirtualenv -i IPy -i WebTest "env5"
     installed=$(pip freeze)
-    assertTrue "CommandLineApp not found in $installed" "echo $installed | grep CommandLineApp"
-    assertTrue "csvcat not found in $installed" "echo $installed | grep csvcat"
+    assertTrue "IPy not found in $installed" "pip freeze | grep IPy"
+    assertTrue "WebTest not found in $installed" "pip freeze | grep WebTest"
 }
 
 . "$test_dir/shunit2"

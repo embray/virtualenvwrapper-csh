@@ -19,7 +19,14 @@ foreach opt ($args)
             _lsvirtualenv_usage
             unset args
             unset long_mode
-            exit 0
+            exit 1
+        # RP: can't understand how this works...
+        case --:
+            breaksw
+        default:
+            echo "Invalid option: -$opt" > /dev/stderr
+            _lsvirtualenv_usage
+            exit 1
     endsw
 end
 

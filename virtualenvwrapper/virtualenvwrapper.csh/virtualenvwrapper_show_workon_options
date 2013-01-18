@@ -1,8 +1,17 @@
 virtualenvwrapper_verify_workon_home || return 1
 
-# NOTE: DO NOT use ls here because colorized versions spew control characters
-#       into the output list.
+# NOTE: DO NOT use ls or cd here because colorized versions spew control 
+#       characters into the output list.
 # echo seems a little faster than find, even with -depth 3.
+#
+# 1. Look for environments by finding the activate scripts.
+#    Use a subshell so we can suppress the message printed
+#    by zsh if the glob pattern fails to match any files.
+# 2. Strip the WORKON_HOME prefix from each name.
+# 3. Strip the bindir/activate script suffix.
+# 4. Format the output to show one name on a line.
+# 5. Eliminate any lines with * on them because that means there 
+#    were no envs.
 if ( $?GREP_OPTIONS ) then
     set grep_options = "$GREP_OPTIONS"
     unsetenv GREP_OPTIONS
@@ -17,10 +26,11 @@ if ( $?activates ) then
     (cd "$WORKON_HOME"; \
       eval 'foreach f ($activates) \
       echo $f \
-      end' | sed 's|^\./||' | \
-     sed "s|^$WORKON_HOME/\?||" | \
-     sed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" | \
-     sort | egrep -v '^\*$')
+      end' \
+     | s\ed "s|^$WORKON_HOME/\?||" \
+     | s\ed "s|/$VIRTUALENVWRAPPER_ENV_BIN_DIR/activate||" \
+     | f\mt -w 1 \
+     | s\ort | e\grep -v '^\*$')
 endif
 
 unset activates
@@ -29,4 +39,3 @@ if ( $?grep_options ) then
     setenv GREP_OPTIONS $grep_options
     unset grep_options
 endif
-

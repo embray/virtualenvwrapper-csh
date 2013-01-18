@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 #
 # Copyright (c) 2010 Doug Hellmann.  All rights reserved.
@@ -7,13 +6,28 @@
 """
 
 import inspect
+import itertools
 import logging
 import logging.handlers
 import optparse
 import os
 import sys
 
-import pkg_resources
+from stevedore import ExtensionManager
+from stevedore import NamedExtensionManager
+
+LOG_FORMAT = '%(asctime)s %(levelname)s %(name)s %(message)s'
+
+
+class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """Taken from http://stackoverflow.com/questions/1407474
+    """
+    def _open(self):
+        prevumask = os.umask(0o002)
+        rtv = logging.handlers.RotatingFileHandler._open(self)
+        os.umask(prevumask)
+        return rtv
+
 
 def main():
     parser = optparse.OptionParser(
@@ -22,65 +36,72 @@ def main():
         description='Manage hooks for virtualenvwrapper',
         )
 
-    parser.add_option('-S', '--script',
-                      help='Runs "hook" then "<hook>_source", writing the ' +
-                           'result to <file>',
-                      dest='script_filename',
-                      default=None,
-                      )
-    parser.add_option('-s', '--source',
-                      help='Print the shell commands to be run in the current shell',
-                      action='store_true',
-                      dest='sourcing',
-                      default=False,
-                      )
-    parser.add_option('-l', '--list',
-                      help='Print a list of the plugins available for the given hook',
-                      action='store_true',
-                      default=False,
-                      dest='listing',
-                      )
-    parser.add_option('-v', '--verbose',
-                      help='Show more information on the console',
-                      action='store_const',
-                      const=2,
-                      default=1,
-                      dest='verbose_level',
-                      )
-    parser.add_option('-q', '--quiet',
-                      help='Show less information on the console',
-                      action='store_const',
-                      const=0,
-                      dest='verbose_level',
-                      )
-    parser.add_option('-n', '--name',
-                      help='Only run the hook from the named plugin',
-                      action='append',
-                      dest='names',
-                      default=[],
-                      )
-    parser.disable_interspersed_args() # stop when we hit an option without an '-'
+    parser.add_option(
+        '-S', '--script',
+        help='Runs "hook" then "<hook>_source", writing the ' +
+        'result to <file>',
+        dest='script_filename',
+        default=None,
+        )
+    parser.add_option(
+        '-s', '--source',
+        help='Print the shell commands to be run in the current shell',
+        action='store_true',
+        dest='sourcing',
+        default=False,
+        )
+    parser.add_option(
+        '-l', '--list',
+        help='Print a list of the plugins available for the given hook',
+        action='store_true',
+        default=False,
+        dest='listing',
+        )
+    parser.add_option(
+        '-v', '--verbose',
+        help='Show more information on the console',
+        action='store_const',
+        const=2,
+        default=1,
+        dest='verbose_level',
+        )
+    parser.add_option(
+        '-q', '--quiet',
+        help='Show less information on the console',
+        action='store_const',
+        const=0,
+        dest='verbose_level',
+        )
+    parser.add_option(
+        '-n', '--name',
+        help='Only run the hook from the named plugin',
+        action='append',
+        dest='names',
+        default=[],
+        )
+    parser.disable_interspersed_args()  # stop when on option without an '-'
     options, args = parser.parse_args()
 
     root_logger = logging.getLogger('')
 
     # Set up logging to a file
     root_logger.setLevel(logging.DEBUG)
-    file_handler = logging.handlers.RotatingFileHandler(
-        os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR', 'hook.log')),
+    file_handler = GroupWriteRotatingFileHandler(
+        os.path.expandvars(os.path.join('$VIRTUALENVWRAPPER_LOG_DIR',
+                                        'hook.log')),
         maxBytes=10240,
         backupCount=1,
         )
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+    formatter = logging.Formatter(LOG_FORMAT)
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
 
     # Send higher-level messages to the console, too
     console = logging.StreamHandler()
-    console_level = [ logging.WARNING,
-                      logging.INFO,
-                      logging.DEBUG,
-                      ][options.verbose_level]
+    console_level = [logging.WARNING,
+                     logging.INFO,
+                     logging.DEBUG,
+                     ][options.verbose_level]
     console.setLevel(console_level)
     formatter = logging.Formatter('%(name)s %(message)s')
     console.setFormatter(formatter)
@@ -90,7 +111,11 @@ def main():
 
     # Determine which hook we're running
     if not args:
-        parser.error('Please specify the hook to run')
+        if options.listing:
+            list_hooks()
+            return 0
+        else:
+            parser.error('Please specify the hook to run')
     hook = args[0]
 
     if options.sourcing and options.script_filename:
@@ -105,39 +130,83 @@ def main():
     run_hooks(hook, options, args)
 
     if options.script_filename:
-        log.debug('Saving sourcable %s hooks to %s', hook, options.script_filename)
+        log.debug('Saving sourcable %s hooks to %s',
+                  hook, options.script_filename)
         options.sourcing = True
         output = open(options.script_filename, "w")
         try:
             output.write('# %s\n' % hook)
+            # output.write('echo %s\n' % hook)
+            # output.write('set -x\n')
             run_hooks(hook + '_source', options, args, output)
         finally:
             output.close()
 
     return 0
 
+
 def run_hooks(hook, options, args, output=None):
     if output is None:
         output = sys.stdout
 
-    for ep in pkg_resources.iter_entry_points('virtualenvwrapper.%s' % hook):
-        if options.names and ep.name not in options.names:
-            continue
-        plugin = ep.load()
-        if options.listing:
-            print '  %-10s -- %s' % (ep.name, inspect.getdoc(plugin) or '')
-            continue
-        if options.sourcing:
+    namespace = 'virtualenvwrapper.%s' % hook
+    if options.names:
+        hook_mgr = NamedExtensionManager(namespace, options.names)
+    else:
+        hook_mgr = ExtensionManager(namespace)
+
+    if options.listing:
+        def show(ext):
+            output.write('  %-10s -- %s\n' %
+                         (ext.name, inspect.getdoc(ext.plugin) or ''))
+        hook_mgr.map(show)
+
+    elif options.sourcing:
+        def get_source(ext, args):
             # Show the shell commands so they can
             # be run in the calling shell.
-            contents = (plugin(args[1:]) or '').strip()
+            contents = (ext.plugin(args) or '').strip()
             if contents:
-                output.write('# %s\n' % ep.name)
+                output.write('# %s\n' % ext.name)
                 output.write(contents)
                 output.write("\n")
-        else:
-            # Just run the plugin ourselves
-            plugin(args[1:])
+        try:
+            hook_mgr.map(get_source, args[1:])
+        except RuntimeError:
+            pass
+
+    else:
+        # Just run the plugin ourselves
+        def invoke(ext, args):
+            ext.plugin(args)
+        try:
+            hook_mgr.map(invoke, args[1:])
+        except RuntimeError:
+            pass
+
+
+def list_hooks(output=None):
+    if output is None:
+        output = sys.stdout
+    for hook in itertools.chain(
+        ('_'.join(h)
+         for h in itertools.product(['pre', 'post'],
+                                    ['mkvirtualenv',
+                                     'rmvirtualenv',
+                                     'activate',
+                                     'deactivate',
+                                     'cpvirtualenv',
+                                     ])
+         ),
+        ['initialize',
+         'get_env_details',
+         'project.pre_mkproject',
+         'project.post_mkproject',
+         'project.template',
+         ]
+        ):
+        output.write(hook + '\n')
+
 
 if __name__ == '__main__':
     main()

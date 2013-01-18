@@ -65,7 +65,8 @@ postmkvirtualenv
   :Sourced/Run: sourced
 
 ``$VIRTUALENVWRAPPER_HOOK_DIR/postmkvirtualenv`` is sourced after the new environment
-is created and activated.
+is created and activated. If the ``-a`` <project_path> flag was used,
+the link to the project directory is set up before this script is sourced.
 
 .. _scripts-precpvirtualenv:
 
@@ -207,7 +208,7 @@ environment directory is passed as an argument to the script.
 .. _scripts-premkproject:
 
 premkproject
-===============
+============
 
   :Global/Local: global
   :Argument(s): name of new project
@@ -223,7 +224,7 @@ argument to the script.
 .. _scripts-postmkproject:
 
 postmkproject
-================
+=============
 
   :Global/Local: global
   :Argument(s): none

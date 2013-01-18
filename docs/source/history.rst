@@ -2,6 +2,126 @@
 Release History
 ===============
 
+3.6
+
+  - Switch to stevedore_ for plugin management
+  - mkvirtualenv_help should use ``$VIRTUALENVWRAPPER_PYTHON`` instead
+    of calling ``virtualenv`` directly (:bbissue:`148`).
+  - Fix issue with lazy-loader code under zsh (:bbissue:`144`).
+  - Fix issue with ``noclobber`` option under zsh
+    (:bbissue:`137`). Fix based on patch from :bbuser:`rob_b`.
+  - Fix documentation for ``add2virtualenv`` to show the correct name
+    for the file containing the new path entry. (contributed by
+    :bbuser:`rvoicilas`)
+  - Fix problem with ``virtualenvwrapper_show_workon_options`` under
+    zsh with ``chpwd`` functions that produce output. (:bbissue:`153`)
+
+.. _stevedore: http://pypi.python.org/pypi/stevedore
+
+3.5
+
+  - Rewrite :ref:`command-cpvirtualenv` to use `virtualenv-clone`_
+    instead of making the new environment relocatable. Contributed by
+    Justin Barber (:bbuser:`barberj`). This also resolves a problem
+    with cpvirtualenv not honoring the ``--no-site-packages`` flag
+    (:bbissue:`102`).
+  - Update docs with link to `virtualenvwrapper-win`_ port by David
+    Marble.
+  - Use ``command`` to avoid functions named the same as common
+    utilities. (:bbissue:`119`)
+
+.. _virtualenv-clone: http://pypi.python.org/pypi/virtualenv-clone
+.. _virtualenvwrapper-win: http://pypi.python.org/pypi/virtualenvwrapper-win 
+
+
+3.4
+
+  - Add :ref:`install-lazy-loader` option.
+
+3.3
+
+  - Clean up file permissions and remove shebangs from scripts not
+    intended to be executed on the command line. (contributed by
+    :bbuser:`ralphbean`)
+  - Worked on some brittle tests.
+  - Received updates to Japanese translation of the documentation from
+    :bbuser:`t2y`.
+  - Fix the test script and runner so the user's ``$WORKON_HOME`` is
+    not erased if they do not have some test shells installed.
+    (big thanks to :bbuser:`agriffis`).
+  - If the hook loader is told to list plugins but is not given a hook
+    name, it prints the list of core hooks.
+  - Merge several fixes for path and variable handling for MSYS users
+    from :bbuser:`bwanamarko`. Includes a fix for :bbissue:`138`.
+  - Change :ref:`command-mkvirtualenv` so it catches both ``-h`` and
+    ``--help``.
+  - Fix some issues with the way temporary files are used for hook
+    scripts. (contributed by :bbuser:`agriffis`)
+  - Allow relative path to requirements file with
+    :ref:`command-mkvirtualenv` and ``-r`` option. (:bbuser:`barberj`)
+  - Make whitespace consistent. (:bbuser:`agriffis`)
+
+3.2
+
+  - Make ``project_dir`` a local variable so that
+    :ref:`command-cdproject` does not interfere with other variables
+    the user might have set. (contributed by :bbuser:`slackorama`)
+  - Fix typo in documentation reported by Nick Martin.
+  - Change trove classifier for license "MIT" to reflect the license
+    text presented in the documentation. *This does not indicate a
+    change in the license, just a correction to the expression of that
+    intent. See :ref:`license`* (contributed by :bbuser:`ralphbean` as
+    fix for :bbissue:`134`)
+  - Extend :ref:`command-rmvirtualenv` to allow removing more than one
+    environment at a time. (contributed by :bbuser:`ciberglo`)
+  - Change the definition of
+    ``virtualenvwrapper_get_site_packages_dir`` to ask ``distutils``
+    for the ``site-packages`` directory instead of trying to build the
+    path ourselves in the shell script. This should resolve
+    :bbissue:`112` and improve support for Python interpreters other
+    than C Python. Thanks to Carl Meyer and Dario Bertini for their
+    contributions toward the fix.
+
+3.1
+
+  - Fix a problem with activation hooks when associating a new
+    virtualenv with an existing project directory. (:bbissue:`122`)
+  - Fix a problem with :ref:`command-add2virtualenv` and paths
+    containing "special" characters such as ``&``. (:bbissue:`132`)
+
+3.0.1
+
+  - Fix some packaging issues that made it more difficult to run the
+    tests directly from the sdist package. (:bbissue:`126`)
+
+3.0
+
+  - Add Python 3 support, thanks in large part to the efforts of
+    Daniel Kraus (:bbuser:`dakra`). Tested under Python 2.6, 2.7, and
+    3.2.
+
+2.11.1
+
+  - Remove the initialization shortcut because it breaks tab
+    completion in sub-shell environments like screen and
+    tmux. (:bbissue:`121`)
+
+2.11
+
+  - Add ``-a`` option to :ref:`command-mkvirtualenv` to associate a
+    new virtualenv with an existing project directory. Contributed by
+    Mike Fogel (:bbuser:`mfogel`).
+  - Drops support for Python 2.4 and 2.5. The tools may still work,
+    but I no longer have a development environment set up for testing
+    them, so I do not officially support them.
+  - Shortcut initialization if it has run before.
+  - Set hook log file permissions to be group-writable. (:bbissue:`62`
+    reported by :bbuser:`hedgeddown`)
+  - Add ``VIRTUALENVWRAPPER_PROJECT_FILENAME`` variable so the
+    ``.project`` file used to link a virtualenv to a project can be
+    renamed to avoid conflicts with other tools. (:bbissue:`120`
+    reported by :bbuser:`arthuralvim`)
+
 2.10.1
 
   - Changed arguments to :ref:`command-mktmpenv` so it always creates

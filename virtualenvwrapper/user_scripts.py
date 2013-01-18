@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 #
 # Copyright (c) 2010 Doug Hellmann.  All rights reserved.
@@ -13,13 +12,15 @@ import stat
 import subprocess
 import sys
 
-import pkg_resources
 
 log = logging.getLogger(__name__)
 
-
 # Are we running under msys
-if sys.platform == 'win32' and os.environ.get('OS') == 'Windows_NT' and os.environ.get('MSYSTEM') == 'MINGW32':
+if (sys.platform == 'win32'
+    and
+    os.environ.get('OS') == 'Windows_NT'
+    and
+    os.environ.get('MSYSTEM') == 'MINGW32'):
     is_msys = True
     script_folder = 'Scripts'
 else:
@@ -33,11 +34,12 @@ def run_script(script_path, *args):
     if os.path.exists(script_path):
         cmd = [script_path] + list(args)
         if is_msys:
-            cmd = [get_path(os.environ['MSYS_HOME'],'bin','sh.exe')] + cmd
+            cmd = [get_path(os.environ['MSYS_HOME'], 'bin', 'sh.exe')] + cmd
         log.debug('running %s', str(cmd))
         try:
-            return_code = subprocess.call(cmd)
-        except OSError, msg:
+            subprocess.call(cmd)
+        except OSError:
+            _, msg, _ = sys.exc_info()
             log.error('could not run "%s": %s', script_path, str(msg))
         #log.debug('Returned %s', return_code)
     return
@@ -85,7 +87,8 @@ GLOBAL_HOOKS = [
 
     # get_env_details
     ("get_env_details",
-     "This hook is run when the list of virtualenvs is printed so each name can include details."),
+     "This hook is run when the list of virtualenvs is printed "
+     "so each name can include details."),
     ]
 
 
@@ -104,7 +107,8 @@ LOCAL_HOOKS = [
 
     # get_env_details
     ("get_env_details",
-     "This hook is run when the list of virtualenvs is printed in 'long' mode so each name can include details."),
+     "This hook is run when the list of virtualenvs is printed "
+     "in 'long' mode so each name can include details."),
     ]
 
 
@@ -122,7 +126,9 @@ def make_hook(filename, comment):
             f.write("""#!%(shell)s
 # %(comment)s
 
-""" % {'comment':comment, 'shell':os.environ.get('SHELL', '/bin/sh')})
+""" % {'comment': comment,
+       'shell': os.environ.get('SHELL', '/bin/sh'),
+       })
         finally:
             f.close()
         os.chmod(filename, PERMISSIONS)
@@ -170,9 +176,10 @@ def initialize_source(args):
 [ -f "$VIRTUALENVWRAPPER_HOOK_DIR/initialize" ] && source "$VIRTUALENVWRAPPER_HOOK_DIR/initialize"
 """
 
+
 def pre_mkvirtualenv(args):
     log.debug('pre_mkvirtualenv %s', str(args))
-    envname=args[0]
+    envname = args[0]
     for filename, comment in LOCAL_HOOKS:
         make_hook(get_path('$WORKON_HOME', envname, script_folder, filename), comment)
     run_global('premkvirtualenv', *args)
@@ -187,9 +194,10 @@ def post_mkvirtualenv_source(args):
 [ -f "$VIRTUALENVWRAPPER_HOOK_DIR/postmkvirtualenv" ] && source "$VIRTUALENVWRAPPER_HOOK_DIR/postmkvirtualenv"
 """
 
+
 def pre_cpvirtualenv(args):
     log.debug('pre_cpvirtualenv %s', str(args))
-    envname=args[0]
+    envname = args[0]
     for filename, comment in LOCAL_HOOKS:
         make_hook(get_path('$WORKON_HOME', envname, script_folder, filename), comment)
     run_global('precpvirtualenv', *args)
@@ -269,10 +277,14 @@ def get_env_details(args):
     run_script(script_path, *args)
     return
 
+
 def get_path(*args):
     '''
     Get a full path from args.
-    Path separator is determined according to the os and the shell and allow to use is_msys.
+
+    Path separator is determined according to the os and the shell and
+    allow to use is_msys.
+
     Variables and user are expanded during the process.
     '''
     path = os.path.expanduser(os.path.expandvars(os.path.join(*args)))
@@ -280,7 +292,7 @@ def get_path(*args):
         # MSYS accept unix or Win32 and sometimes it drives to mixed style paths
         if re.match(r'^/[a-zA-Z](/|^)', path):
             # msys path could starts with '/c/'-form drive letter
-            path = ''.join((path[1],':',path[2:]))
+            path = ''.join((path[1], ':', path[2:]))
         path = path.replace('/', os.sep)
 
     return os.path.abspath(path)

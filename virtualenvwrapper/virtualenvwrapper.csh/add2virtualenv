@@ -9,33 +9,53 @@ if ( ! -d "$site_packages" ) then
     exit 1
 endif
 
-set path_file = "$site_packages/virtualenv_path_extensions.pth"
+# Prefix with _ to ensure we are loaded as early as possible,
+# and at least before easy_install.pth.
+set path_file = "$site_packages/_virtualenv_path_extensions.pth"
 
 if ( $#argv == 0 ) then
     echo "Usage: add2virtualenv dir [dir ...]"
     if ( -f "$path_file" ) then
         echo
         echo "Existing paths:"
-        cat "$path_file"
+        cat "$path_file" | grep -v "^import"
     endif
     unset site_packages
     unset path_file
     exit 1
 endif
 
-touch "$path_file"
+set remove "0"
+if ( "$1" == "-d" ) then
+    set remove "1"
+    shift
+endif
+
+if ( ! -d "$path_file" ) then
+    echo "import sys; sys.__plen = len(sys.path)" > "$path_file" || exit 1
+    echo "import sys; new=sys.path[sys.__plen:]; del sys.path[sys.__plen:]; p=getattr(sys,'__egginsert',0); sys.path[p:p]=new; sys.__egginsert = p+len(new)" >> "$path_file" || exit 1
+endif
+
 foreach pydir ($argv)
     set absolute_path = `"$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.abspath('$pydir')"`
     if ( "$absolute_path" != "$pydir" ) then
         echo "Warning: Converting '$pydir' to '$absolute_path'" > /dev/stderr
     endif
-    echo "$absolute_path" >> "$path_file"
+
+    if ( "$remove" == "1" ) then
+        sed -i.tmp "\:^$absolute_path$: d" "$path_file"
+    else
+        sed -i.tmp '1 a\
+'"$absolute_path"'
+' "$path_file"
+    endif
+    rm -f "${path_file}.tmp"
 end
 
+unset remove
 unset pydir
 unset absolute_path
 unset path_file
 unset site_packages
 
 exit 0
-

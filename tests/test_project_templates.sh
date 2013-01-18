@@ -1,14 +1,10 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(dirname $0)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
-export PROJECT_HOME="$(echo ${TMPDIR:-/tmp}/PROJECT_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
-    (cd "$test_dir/testtemplate" && python setup.py install)
+    (cd "$test_dir/testtemplate" && rm -rf build && "$VIRTUAL_ENV/bin/python" setup.py install)
     rm -rf "$WORKON_HOME"
     mkdir -p "$WORKON_HOME"
     rm -rf "$PROJECT_HOME"
@@ -32,7 +28,7 @@ test_list_templates () {
 }
 
 test_apply_template () {
-    mkproject -t test proj1
+    mkproject -t test proj1 >/dev/null 2>&1
     assertTrue "Test file not created" "[ -f TEST_FILE ]"
     assertTrue "project name not found" "grep -q proj1 TEST_FILE"
 }

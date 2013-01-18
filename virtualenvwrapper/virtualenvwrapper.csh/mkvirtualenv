@@ -1,14 +1,50 @@
+set in_args = ($*)
+set out_args = ()
+set i = 1
+set project
+set packages
+set requirements
+
+while ( $i <= $#argv )
+    set a = "$in_args[$i]"
+    # echo "arg $i : $a"
+    switch ( "$a" )
+        case -a:
+            @ i += 1
+            set project = "${in_args[$i]}"
+            breaksw
+        case -h:
+            mkvirtualenv_help $a
+            exit
+        case --help:
+            mkvirtualenv_help $a
+            exit
+        case -i:
+            @ i += 1
+            set packages = "$packages ${in_args[$i]}"
+            breaksw
+        case -r:
+            @ i += 1
+            set requirements = "${in_args[$i]}"
+            set requirements = "`virtualenvwrapper_expandpath $requirements`"
+            breaksw
+        default:
+            if ( ${#out_args} > 0 ) then
+                set out_args = ( ${out_args[*]} "$a" )
+            else
+                set out_args = ( "$a" )
+            endif
+    endsw
+    @ i += 1
+end
+unset in_args
+unset out_args
+unset a
+unset i
+
 set envname = "$argv[$#argv]"
-
-# If envname not given, just display the virtualenv help and exit
-if ( "$envname" == "" ) then
-    "$VIRTUALENVWRAPPER_VIRTUALENV"
-    unset envname
-    exit 1
-endif
-
-virtualenvwrapper_verify_workon_home || unset envname && exit 1
-virtualenvwrapper_verify_virtualenv || unset envname && exit 1
+virtualenvwrapper_verify_workon_home || unset project && unset packages && unset requirements && unset envname && exit 1
+virtualenvwrapper_verify_virtualenv || unset project && unset packages && unset requirements && unset envname && exit 1
 
 if ( $?VIRTUALENVWRAPPER_VIRTUALENV_ARGS ) then
     set virtualenv_args = "$VIRTUALENVWRAPPER_VIRTUALENV_ARGS"
@@ -16,7 +52,7 @@ else
     set virtualenv_args
 endif
 
-(cd "$WORKON_HOME" && \
+(virtualenvwrapper_cd "$WORKON_HOME" && \
 "$VIRTUALENVWRAPPER_VIRTUALENV" $virtualenv_args $argv && \
 test \( -d "$WORKON_HOME/$envname" \) && \
 virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname")
@@ -24,13 +60,32 @@ virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname")
 unset virtualenv_args
 
 @ RC = $?
-test \( $RC -ne 0 \) && unset envname && exit $RC
+test \( $RC -ne 0 \) && unset project && unset packages && unset requirements && unset envname && exit $RC
 
 # If they passed a help option or got an error from virtualenv,
 # the environment won't exist.  Use that to tell whether
 # we should switch to the environment and run the hook.
-test \( ! -d "$WORKON_HOME/$envname" \) && unset envname && exit 0
+test \( ! -d "$WORKON_HOME/$envname" \) && unset project && unset packages && unset requirements && unset envname && exit 0
+
+# If they gave us a project directory, set it up now
+# so the activate hooks can find it.
+if ( "$project" != "" ) then
+    setvirtualenvproject "$WORKON_HOME/$envname" "$project"
+endif
+
 # Now activate the new environment
 workon "$envname"
+
+if ( "$requirements" != "" ) then
+    pip install -r "$requirements"
+endif
+
+foreach a ( $packages )
+    pip install $a
+end
+
 virtualenvwrapper_run_hook "post_mkvirtualenv"
+unset project
+unset packages
+unset requirements
 unset envname

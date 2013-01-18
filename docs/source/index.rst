@@ -7,36 +7,39 @@
 virtualenvwrapper |release|
 ###########################
 
-virtualenvwrapper es un conjunto de extensiones de la herramienta de Ian
-Bicking `virtualenv <http://pypi.python.org/pypi/virtualenv>`_. Las extensiones
-incluyen funciones para la creación y eliminación de entornos virtuales y por otro
-lado administración de tu rutina de desarrollo, haciendo fácil trabajar en más
-de un proyecto al mismo tiempo sin introducir conflictos entre sus dependencias.
+virtualenvwrapper is a set of extensions to Ian Bicking's `virtualenv
+<http://pypi.python.org/pypi/virtualenv>`_ tool.  The extensions
+include wrappers for creating and deleting virtual environments and
+otherwise managing your development workflow, making it easier to work
+on more than one project at a time without introducing conflicts in
+their dependencies.
 
-===============
-Características
-===============
+========
+Features
+========
 
-1. Organiza todos tus entornos virtuales en un sólo lugar.
-2. Funciones para administrar tus entornos virtuales (crear, eliminar, copiar).
-3. Usa un sólo comando para cambiar entre los entornos.
-4. Completa con Tab los comandos que toman un entorno virtual como argumento.
-5. Ganchos configurables para todas las operaciones (ver :ref:`scripts`).
-6. Sistema de plugins para la creación de extensiones compartibles (ver
+1. Organizes all of your virtual environments in one place.
+2. Wrappers for managing your virtual environments (create, delete,
+   copy).
+3. Use a single command to switch between environments.
+4. Tab completion for commands that take a virtual environment as
+   argument.
+5. User-configurable hooks for all operations (see :ref:`scripts`).
+6. Plugin system for more creating sharable extensions (see
    :ref:`plugins`).
 
 ============
-Introducción
+Introduction
 ============
 
-La mejor forma de explicar las características que virtualenvwrapper brinda es
-mostrarlo en acción.
+The best way to explain the features virtualenvwrapper gives you is to
+show it in use.
 
-Primero, algunos pasos de inicialización. La mayoría de esto sólo necesita ser
-hecho una sola vez. Vas a querer agregar el comando ``source
-/usr/local/bin/virtualenvwrapper.sh`` al archivo de inicio de shell, cambiando
-el path hacia virtualenvwrapper.sh dependiendo en dónde haya sido instalado por
-pip.
+First, some initialization steps.  Most of this only needs to be done
+one time.  You will want to add the command to ``source
+/usr/local/bin/virtualenvwrapper.sh`` to your shell startup file,
+changing the path to virtualenvwrapper.sh depending on where it was
+installed by pip.
 
 ::
 
@@ -58,7 +61,7 @@ pip.
   (env1)$ ls $WORKON_HOME
   env1 hook.log
 
-Ahora podemos instalar algún software dentro del entorno.
+Now we can install some software into the environment.
 
 ::
 
@@ -72,14 +75,14 @@ Ahora podemos instalar algún software dentro del entorno.
       changing mode of /Users/dhellmann/Envs/env1/bin/django-admin.py to 755
   Successfully installed django
 
-Podemos ver el nuevo paquete instalado con ``lssitepackages``::
+We can see the new package with ``lssitepackages``::
 
   (env1)$ lssitepackages
   Django-1.1.1-py2.6.egg-info     easy-install.pth
   distribute-0.6.10-py2.6.egg     pip-0.6.3-py2.6.egg
   django                          setuptools.pth
 
-Por supuesto que no estamos limitados a un sólo virtualenv::
+Of course we are not limited to a single virtualenv::
 
   (env1)$ ls $WORKON_HOME
   env1            hook.log
@@ -95,16 +98,16 @@ Por supuesto que no estamos limitados a un sólo virtualenv::
   (env2)$ ls $WORKON_HOME
   env1            env2            hook.log
 
-Cambiar entre entornos con ``workon``::
+Switch between environments with ``workon``::
 
   (env2)$ workon env1
   (env1)$ echo $VIRTUAL_ENV
   /Users/dhellmann/Envs/env1
-  (env1)$
+  (env1)$ 
 
-El comando ``workon`` también incluye la opción de completar con Tab los nombres
-de los entornos, e invoca a los scripts personalizados cuando un entorno es
-activado o desactivado (ver :ref:`scripts`).
+The ``workon`` command also includes tab completion for the
+environment names, and invokes customization scripts as an environment
+is activated or deactivated (see :ref:`scripts`).
 
 ::
 
@@ -113,8 +116,8 @@ activado o desactivado (ver :ref:`scripts`).
   (env2)$ pwd
   /Users/dhellmann/Envs/env2
 
-:ref:`scripts-postmkvirtualenv` es ejecutado cuando un nuevo entorno es creado,
-dejándote instalar automáticamente herramientas comúnmente utilizadas.
+:ref:`scripts-postmkvirtualenv` is run when a new environment is
+created, letting you automatically install commonly-used tools.
 
 ::
 
@@ -152,19 +155,19 @@ dejándote instalar automáticamente herramientas comúnmente utilizadas.
       Installing sphinx-build script to /Users/dhellmann/Envs/env3/bin
       Installing sphinx-quickstart script to /Users/dhellmann/Envs/env3/bin
       Installing sphinx-autogen script to /Users/dhellmann/Envs/env3/bin
-  Successfully installed docutils Jinja2 Pygments sphinx  (env3)$
+  Successfully installed docutils Jinja2 Pygments sphinx  (env3)$ 
   (venv3)$ which sphinx-build
   /Users/dhellmann/Envs/env3/bin/sphinx-build
 
-A través de una combinación de funciones existentes definidas por el *core*
-del paquete (ver :ref:`command`), plugins de terceros (ver
-:ref:`plugins`), y scripts definidos por el usuario (ver :ref:`scripts`)
-virtualenvwrapper brinda una amplia variedad de oportunidades para automatizar
-tareas repetitivas.
+Through a combination of the existing functions defined by the core
+package (see :ref:`command`), third-party plugins (see
+:ref:`plugins`), and user-defined scripts (see :ref:`scripts`)
+virtualenvwrapper gives you a wide variety of opportunities to
+automate repetitive operations.
 
-========
-Detalles
-========
+=======
+Details
+=======
 
 .. toctree::
    :maxdepth: 2
@@ -172,6 +175,7 @@ Detalles
    install
    command_ref
    hooks
+   projects
    tips
    developers
    extensions
@@ -179,25 +183,54 @@ Detalles
 
 .. _references:
 
-===========
-Referencias
-===========
+==========
+References
+==========
 
-`virtualenv <http://pypi.python.org/pypi/virtualenv>`_, de Ian
-Bicking, es un pre-requisito para usar estas extensiones.
+`virtualenv <http://pypi.python.org/pypi/virtualenv>`_, from Ian
+Bicking, is a pre-requisite to using these extensions.
 
-Para más detalles, referirse a la columna que escribí para la revista de
-python (Python Magazine) en Mayo de 2008: `virtualenvwrapper | And Now For Something
+For more details, refer to the column I wrote for the May 2008 issue
+of Python Magazine: `virtualenvwrapper | And Now For Something
 Completely Different
 <http://www.doughellmann.com/articles/CompletelyDifferent-2008-05-virtualenvwrapper/index.html>`_.
 
-Rich Leland ha grabado un pequeño `screencast
+Rich Leland has created a short `screencast
 <http://mathematism.com/2009/jul/30/presentation-pip-and-virtualenv/>`__
-mostrando las características de virtualenvwrapper.
+showing off the features of virtualenvwrapper.
 
-========
-Licencia
-========
+Manuel Kaufmann has `translated this documentation into Spanish
+<http://virtualenvwrapper-docs-es.readthedocs.org/en/latest/>`__.
+
+Tetsuya Morimoto has `translated this documentation into Japanese
+<http://virtualenvwrapper-docs-ja.readthedocs.org/en/latest/>`__.
+
+=======
+Support
+=======
+
+Join the `virtualenvwrapper Google Group
+<http://groups.google.com/group/virtualenvwrapper/>`__ to discuss
+issues and features.  
+
+Report bugs via the `bug tracker on BitBucket
+<http://bitbucket.org/dhellmann/virtualenvwrapper/>`__.
+
+Shell Aliases
+=============
+
+Since virtualenvwrapper is largely a shell script, it uses shell
+commands for a lot of its actions.  If your environment makes heavy
+use of shell aliases or other customizations, you may encounter
+issues.  Before reporting bugs in the bug tracker, please test
+*without* your aliases enabled.  If you can identify the alias causing
+the problem, that will help make virtualenvwrapper more robust.
+
+.. _license:
+
+=======
+License
+=======
 
 Copyright Doug Hellmann, All Rights Reserved
 
@@ -216,16 +249,3 @@ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
 USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
-
-.. note::
-
-   Esta traducción fue realizada por `Manuel Kaufmann
-   <http://humitos.wordpress.com/>`__.
-
-.. seealso::
-
-   * `La traducción al español <http://bitbucket.org/humitos/virtualenvwrapper-es-translation/>`__
-
-   * The original `English version
-     <http://www.doughellmann.com/docs/virtualenvwrapper/>`__ of the
-     documentation.

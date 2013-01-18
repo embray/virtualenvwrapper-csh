@@ -24,6 +24,16 @@ from this page.
 
 .. _bitbucket project page: https://bitbucket.org/dhellmann/virtualenvwrapper/
 
+Windows Command Prompt
+----------------------
+
+David Marble has ported virtualenvwrapper to Windows batch scripts,
+which can be run under Microsoft Windows Command Prompt. This is also
+a separately distributed re-implementation. You can download
+`virtualenvwrapper-win`_ from PyPI.
+
+.. _virtualenvwrapper-win: http://pypi.python.org/pypi/virtualenvwrapper-win 
+
 MSYS
 ----
 
@@ -108,7 +118,7 @@ Shell Startup File
 
 Add three lines to your shell startup file (``.bashrc``, ``.profile``,
 etc.) to set the location where the virtual environments should live,
-the location of your development project directorkes, and the location
+the location of your development project directories, and the location
 of the script installed with this package::
 
     export WORKON_HOME=$HOME/.virtualenvs
@@ -117,6 +127,32 @@ of the script installed with this package::
 
 After editing it, reload the startup file (e.g., run ``source
 ~/.bashrc``).
+
+.. _install-lazy-loader:
+
+Lazy Loading
+------------
+
+An alternative initialization script is provided for loading
+virtualenvwrapper lazily. Instead of sourcing ``virtualenvwrapper.sh``
+directly, use ``virtualenvwrapper_lazy.sh``. If
+``virtualenvwrapper.sh`` is not on your ``$PATH``, set
+``VIRTUALENVWRAPPER_SCRIPT`` to point to it.
+
+::
+
+    export WORKON_HOME=$HOME/.virtualenvs
+    export PROJECT_HOME=$HOME/Devel
+    export VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
+    source /usr/local/bin/virtualenvwrapper_lazy.sh
+
+.. warning::
+
+   When the lazy-loading version of the startup script is used,
+   tab-completion of arguments to virtualenvwrapper commands (such as
+   environment names) is not enabled until after the first command has
+   been run. For example, tab completion of environments does not work
+   for the first instance of :ref:`command-workon`.
 
 Quick-Start
 ===========
@@ -153,6 +189,19 @@ Location of Project Directories
 The variable ``PROJECT_HOME`` tells virtualenvwrapper where to place
 your project working directories.  The variable must be set and the
 directory created before :ref:`command-mkproject` is used.
+
+.. seealso::
+
+   * :ref:`project-management`
+
+.. _variable-VIRTUALENVWRAPPER_PROJECT_FILENAME:
+
+Project Linkage Filename
+------------------------
+
+The variable ``VIRTUALENVWRAPPER_PROJECT_FILENAME`` tells
+virtualenvwrapper how to name the file linking a virtualenv to a
+project working directory. The default is ``.project``.
 
 .. seealso::
 

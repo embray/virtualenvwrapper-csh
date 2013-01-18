@@ -22,9 +22,9 @@ Create a new environment, in the WORKON_HOME.
 
 Syntax::
 
-    mkvirtualenv [-i package] [-r requirements_file] [virtualenv options] ENVNAME
+    mkvirtualenv [-a project_path] [-i package] [-r requirements_file] [virtualenv options] ENVNAME
 
-All command line options except ``-i``, ``-r``, and ``-h`` are passed
+All command line options except ``-a``, ``-i``, ``-r``, and ``-h`` are passed
 directly to ``virtualenv``.  The new environment is automatically
 activated after being initialized.
 
@@ -40,6 +40,9 @@ activated after being initialized.
     (mynewenv)$ workon
     mynewenv
     (mynewenv)$ 
+
+The ``-a`` option can be used to associate an existing project
+directory with the new environment.
 
 The ``-i`` option can be used to install one or more packages (by
 repeating the option) after the environment is created.
@@ -119,6 +122,8 @@ Syntax::
 
    * :ref:`scripts-get_env_details`
 
+.. _command-rmvirtualenv:
+
 rmvirtualenv
 ------------
 
@@ -148,16 +153,20 @@ environment.
 cpvirtualenv
 ------------
 
-Duplicate an environment, in the WORKON_HOME.
+Duplicate an existing virtualenv environment. The source can be an
+environment managed by virtualenvwrapper or an external environment
+created elsewhere.
 
 Syntax::
 
-    cpvirtualenv ENVNAME TARGETENVNAME
+    cpvirtualenv ENVNAME [TARGETENVNAME]
 
 .. note::
 
-   The environment created by the copy operation is made `relocatable
-   <http://virtualenv.openplans.org/#making-environments-relocatable>`__.
+  Target environment name is required for WORKON_HOME
+  duplications. However, target environment name can be ommited for
+  importing external environments. If omitted, the new environment is
+  given the same name as the original.
 
 ::
 
@@ -191,6 +200,8 @@ Syntax::
 ==================================
 Controlling the Active Environment
 ==================================
+
+.. _command-workon:
 
 workon
 ------
@@ -397,7 +408,7 @@ in a ``.pth`` file inside ``site-packages`` using ``add2virtualenv``.
 4. A usage message and list of current "extra" paths is printed.
 
 The directory names are added to a path file named
-``virtualenv_path_extensions.pth`` inside the site-packages directory
+``_virtualenv_path_extensions.pth`` inside the site-packages directory
 for the environment.
 
 *Based on a contribution from James Bennett and Jannis Leidel.*

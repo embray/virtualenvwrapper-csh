@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 PROJECT = 'virtualenvwrapper'
-
-# Change docs/sphinx/conf.py too!
-VERSION = '2.10.1'
+VERSION = '3.6'
 
 # Bootstrap installation of Distribute
 import distribute_setup
@@ -21,7 +19,6 @@ try:
 except IOError:
     long_description = ''
 
-
 ################################################################################
 # find_package_data is an Ian Bicking creation.
 
@@ -30,6 +27,7 @@ except IOError:
 standard_exclude = ('*.py', '*.pyc', '*~', '.*', '*.bak', '*.swp*')
 standard_exclude_directories = ('.*', 'CVS', '_darcs', './build',
                                 './dist', 'EGG-INFO', '*.egg-info')
+
 
 def find_package_data(
     where='.', package='',
@@ -107,61 +105,63 @@ def find_package_data(
                         break
                 if bad_name:
                     continue
-                out.setdefault(package, []).append(prefix+name)
+                out.setdefault(package, []).append(prefix + name)
     return out
 ################################################################################
 
 
 setup(
-    name = PROJECT,
-    version = VERSION,
+    name=PROJECT,
+    version=VERSION,
 
-    description = 'Enhancements to virtualenv',
-    long_description = long_description,
+    description='Enhancements to virtualenv',
+    long_description=long_description,
 
-    author = 'Doug Hellmann',
-    author_email = 'doug.hellmann@gmail.com',
+    author='Doug Hellmann',
+    author_email='doug.hellmann@gmail.com',
 
-    url = 'http://www.doughellmann.com/projects/%s/' % PROJECT,
-    #download_url = 'http://www.doughellmann.com/downloads/%s-%s.tar.gz' % \
-    #                (PROJECT, VERSION),
+    url='http://www.doughellmann.com/projects/%s/' % PROJECT,
 
-    classifiers = [ 'Development Status :: 5 - Production/Stable',
-                    'License :: OSI Approved :: BSD License',
-                    'Programming Language :: Python',
-                    'Programming Language :: Python :: 2',
-                    'Programming Language :: Python :: 2.4',
-                    'Programming Language :: Python :: 2.5',
-                    'Programming Language :: Python :: 2.6',
-                    'Programming Language :: Python :: 2.7',
-                    'Intended Audience :: Developers',
-                    'Environment :: Console',
-                    ],
+    classifiers=['Development Status :: 5 - Production/Stable',
+                 'License :: OSI Approved :: MIT License',
+                 'Programming Language :: Python',
+                 'Programming Language :: Python :: 2',
+                 'Programming Language :: Python :: 2.6',
+                 'Programming Language :: Python :: 2.7',
+                 'Programming Language :: Python :: 3',
+                 'Programming Language :: Python :: 3.2',
+                 'Intended Audience :: Developers',
+                 'Environment :: Console',
+                 ],
 
-    platforms = ['Any'],
+    platforms=['Any'],
 
-    scripts = ['virtualenvwrapper.sh',
-               'virtualenvwrapper.csh',
-               ],
+    scripts=['virtualenvwrapper.sh',
+             'virtualenvwrapper_lazy.sh',
+             'virtualenvwrapper.csh'
+             ],
 
     provides=['virtualenvwrapper',
               'virtualenvwrapper.user_scripts',
               'virtualenvwrapper.project',
               ],
-    install_requires=['virtualenv'],
+    install_requires=['virtualenv',
+                      'virtualenv-clone',
+                      'stevedore',
+                      ],
 
-    namespace_packages = [ 'virtualenvwrapper' ],
-    packages = find_packages(),
-    include_package_data = True,
+    namespace_packages=['virtualenvwrapper'],
+    packages=find_packages(),
+    include_package_data=True,
     # Scan the input for package information
     # to grab any data files (text, images, etc.)
     # associated with sub-packages.
-    package_data = find_package_data(PROJECT,
-                                     package=PROJECT,
-                                     only_in_packages=False,
-                                     ),
+    package_data=find_package_data(PROJECT, 
+                                   package=PROJECT,
+                                   only_in_packages=False,
+                                   ),
 
-    entry_points = {
+    entry_points={
         #'console_scripts': [ 'venvw_hook = virtualenvwrapper.hook_loader:main' ],
         'virtualenvwrapper.initialize': [
             'user_scripts = virtualenvwrapper.user_scripts:initialize',

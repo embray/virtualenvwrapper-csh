@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # encoding: utf-8
 #
 # Copyright (c) 2010 Doug Hellmann.  All rights reserved.
@@ -8,8 +7,6 @@
 
 import logging
 import os
-
-import pkg_resources
 
 from virtualenvwrapper.user_scripts import make_hook, run_global
 
@@ -29,6 +26,7 @@ GLOBAL_HOOKS = [
      "This hook is run after a project is deleted."),
     ]
 
+
 def initialize(args):
     """Set up user hooks
     """
@@ -39,9 +37,10 @@ def initialize(args):
 
 def pre_mkproject(args):
     log.debug('pre_mkproject %s', str(args))
-    envname=args[0]
+    envname = args[0]
     run_global('premkproject', *args)
     return
+
 
 def post_mkproject_source(args):
     return """
@@ -51,10 +50,11 @@ def post_mkproject_source(args):
 [ -f "$WORKON_HOME/postmkproject" ] && source "$WORKON_HOME/postmkproject"
 """
 
+
 def post_activate_source(args):
     return """
 #
 # Change to the project directory
 #
-[ -f "$VIRTUAL_ENV/.project" ] && cd `cat "$VIRTUAL_ENV/.project"`
+[ -f "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME" ] && cd `cat "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME"`
 """

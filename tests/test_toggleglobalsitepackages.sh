@@ -1,10 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -19,12 +16,12 @@ oneTimeTearDown() {
 setUp () {
     echo
     rm -f "$test_dir/catch_output"
-    mkvirtualenv --no-site-packages "globaltest"
+    mkvirtualenv --system-site-packages "globaltest"  >/dev/null 2>&1
 }
 
 tearDown () {
-    deactivate
-    rmvirtualenv "globaltest"
+    deactivate >/dev/null 2>&1
+    rmvirtualenv "globaltest" >/dev/null 2>&1
 }
 
 test_toggleglobalsitepackages () {

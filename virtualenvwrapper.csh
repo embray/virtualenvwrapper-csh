@@ -72,6 +72,11 @@ if ( ! $?VIRTUALENVWRAPPER_SCRIPT_PATH ) then
         "$VIRTUALENVWRAPPER_LIB_PATH/virtualenvwrapper.csh"
 endif
 
+# Set the name of the virtualenv-clone app to use.
+if ( ! $?VIRTUALENVWRAPPER_VIRTUALENV_CLONE ) then
+    set VIRTUALENVWRAPPER_VIRTUALENV_CLONE = "virtualenv-clone"
+endif
+
 # Define script folder depending on the platorm (Win32/Unix)
 # XXX Is this even desired or necessary in csh? Is anybody seriously going to
 # be using csh under mingw32?
@@ -83,6 +88,22 @@ if ( $?OS && $?MSYSTEM ) then
         set VIRTUALENVWRAPPER_ENV_BIN_DIR="Scripts"
     endif
 endif
+
+# Let the user override the name of the file that holds the project
+# directory name.
+if ( ! $?VIRTUALENVWRAPPER_PROJECT_FILENAME ) then
+    setenv VIRTUALENVWRAPPER_PROJECT_FILENAME ".project"
+endif
+
+# Portable shell scripting is hard, let's go shopping.
+#
+# People insist on aliasing commands like 'cd', either with a real
+# alias or even a shell function.
+# http://unix.stackexchange.com/questions/12762/how-do-i-temporarily-bypass-an-alias-in-tcsh
+alias virtualenvwrapper_cd 'c\d \!*'
+
+alias virtualenvwrapper_expandpath \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_expandpath \!:1'
 
 alias virtualenvwrapper_derive_workon_home \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_derive_workon_home'
@@ -96,6 +117,10 @@ alias virtualenvwrapper_verify_workon_home \
 
 set HOOK_VERBOSE_OPTION = "-q"
 
+# Function to wrap mktemp so tests can replace it for error condition
+# testing.
+alias virtualenvwrapper_mktemp 'm\ktemp \!*'
+
 # Expects 1 argument, the suffix for the new file.
 alias virtualenvwrapper_tempfile \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_tempfile \!:*'
@@ -104,21 +129,70 @@ alias virtualenvwrapper_tempfile \
 alias virtualenvwrapper_run_hook \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_run_hook \!:*'
 
+# Set up tab completion.  (Adapted from Arthur Koziel's version at
+# http://arthurkoziel.com/2008/10/11/virtualenvwrapper-bash-completion/)
+# function virtualenvwrapper_setup_tab_completion {
+#     if [ -n "$BASH" ] ; then
+#         _virtualenvs () {
+#             local cur="${COMP_WORDS[COMP_CWORD]}"
+#             COMPREPLY=( $(compgen -W "`virtualenvwrapper_show_workon_options`" -- ${cur}) )
+#         }
+#         _cdvirtualenv_complete () {
+#             local cur="$2"
+#             COMPREPLY=( $(cdvirtualenv && compgen -d -- "${cur}" ) )
+#         }
+#         _cdsitepackages_complete () {
+#             local cur="$2"
+#             COMPREPLY=( $(cdsitepackages && compgen -d -- "${cur}" ) )
+#         }
+#         complete -o nospace -F _cdvirtualenv_complete -S/ cdvirtualenv
+#         complete -o nospace -F _cdsitepackages_complete -S/ cdsitepackages
+#         complete -o default -o nospace -F _virtualenvs workon
+#         complete -o default -o nospace -F _virtualenvs rmvirtualenv
+#         complete -o default -o nospace -F _virtualenvs cpvirtualenv
+#         complete -o default -o nospace -F _virtualenvs showvirtualenv
+#     elif [ -n "$ZSH_VERSION" ] ; then
+#         _virtualenvs () {
+#             reply=( $(virtualenvwrapper_show_workon_options) )
+#         }
+#         _cdvirtualenv_complete () {
+#             reply=( $(cdvirtualenv && ls -d ${1}*) )
+#         }
+#         _cdsitepackages_complete () {
+#             reply=( $(cdsitepackages && ls -d ${1}*) )
+#         }
+#         compctl -K _virtualenvs workon rmvirtualenv cpvirtualenv showvirtualenv
+#         compctl -K _cdvirtualenv_complete cdvirtualenv
+#         compctl -K _cdsitepackages_complete cdsitepackages
+#     fi
+# }
+
 # Set up virtualenvwrapper properly
 alias virtualenvwrapper_initialize \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_initialize'
 
+# Verify that the passed resource is in path and exists
+alias virtualenvwrapper_verify_resource \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_resource \!:*'
+
 # Verify that virtualenv is installed and visible
 alias virtualenvwrapper_verify_virtualenv \
-    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_virtualenv'
+    'virtualenvwrapper_verify_resource $VIRTUALENVWRAPPER_VIRTUALENV'
+
+alias virtualenvwrapper_verify_virtualenv_clone \
+    'virtualenvwrapper_verify_resource $VIRTUALENVWRAPPER_VIRTUALENV_CLONE'
 
 # Verify that the requested environment exists
 alias virtualenvwrapper_verify_workon_environment \
-    '(source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_workon_environment \!:*)'
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_workon_environment \!:*'
 
-## Verify that the active environment exists
+# Verify that the active environment exists
 alias virtualenvwrapper_verify_active_environment \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_active_environment'
+
+# Help text for mkvirtualenv
+alias mkvirtualenv_help \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mkvirtualenv_help \!:*'
 
 # Create a new environment, in the WORKON_HOME.
 #
@@ -142,7 +216,6 @@ alias _lsvirtualenv_usage ' \\
      echo "  -l -- long mode"; \\
      echo "  -h -- this help message")'
 
-
 # List virtual environments
 #
 # Usage: lsvirtualenv [-l]
@@ -164,20 +237,17 @@ alias showvirtualenv \
 alias workon \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/workon \!:*'
 
-
 # Prints the Python version string for the current interpreter.
-# Uses the Python from the virtualenv because we're trying to
-# determine the version installed there so we can build
-# up the path to the site-packages directory.
+# Uses the Python from the virtualenv rather than
+# VIRTUALENVWRAPPER_PYTHON because we're trying to determine the
+# version installed there so we can build up the path to the
+# site-packages directory.
 alias virtualenvwrapper_get_python_version \
-    "python -V |& cut -f2 -d' ' | cut -f-2 -d."
-# The above is one of the rare cases where it is best to put the alias body in
-# double quotes
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_get_python_version'
 
 # Prints the path to the site-packages directory for the current environment.
 alias virtualenvwrapper_get_site_packages_dir \
-    'echo "$VIRTUAL_ENV/lib/python`virtualenvwrapper_get_python_version`/site-packages"'
-
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_get_site_packages_dir'
 
 # Path management for packages outside of the virtual env.
 # Based on a contribution from James Bennett and Jannis Leidel.
@@ -216,11 +286,45 @@ alias toggleglobalsitepackages \
 alias cpvirtualenv \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/cpvirtualenv \!:*'
 
+#
+# virtualenvwrapper project functions
+#
 
-# Invoke the initialization hooks
+# Verify that the PROJECT_HOME directory exists
+alias virtualenvwrapper_verify_project_home \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_verify_project_home \!:*'
+
+# Given a virtualenv directory and a project directory,
+# set the virtualenv up to be associated with the
+# project
+alias setvirtualenvproject \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/setvirtualenvproject \!:*'
+
+# Show help for mkproject
+alias mkproject_help \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mkproject_help'
+
+# Create a new project directory and its associated virtualenv.
+alias mkproject \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mkproject \!:*'
+
+# Change directory to the active project
+alias cdproject \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/cdproject \!:*'
+
+#
+# Temporary virtualenv
+#
+# Originally part of virtualenvwrapper.tmpenv plugin
+#
+alias mktmpenv \
+    'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mktmpenv'
+
+#
+# Invoke the initialization functions
 #
 virtualenvwrapper_initialize
 
-cleanup:
-    rm -f ${VIRTUALENVWRAPPER_CLEANUP} >& /dev/null
-    onintr
+# cleanup:
+#     rm -f ${VIRTUALENVWRAPPER_CLEANUP} >& /dev/null
+#     onintr

@@ -1,11 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(dirname $0)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
-export PROJECT_HOME="$(echo ${TMPDIR:-/tmp}/PROJECT_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -79,6 +75,14 @@ test_same_workon_and_project_home () {
     assertTrue "env directory not created" "[ -d $WORKON_HOME/myproject1 ]"
     assertTrue "project directory was created" "[ -d $old_project_home/myproject1 ]"
     PROJECT_HOME="$old_project_home"
+}
+
+test_alternate_linkage_filename () {
+    export VIRTUALENVWRAPPER_PROJECT_FILENAME=".not-project"
+    mkproject myproject6 >/dev/null 2>&1
+    assertSame "myproject6" $(basename "$VIRTUAL_ENV")
+    assertSame "$PROJECT_HOME/myproject6" "$(cat $VIRTUAL_ENV/.not-project)"
+    export VIRTUALENVWRAPPER_PROJECT_FILENAME=".project"
 }
 
 . "$test_dir/shunit2"

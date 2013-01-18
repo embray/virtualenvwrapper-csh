@@ -1,12 +1,15 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
+source "$test_dir/setup.sh"
 
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+oneTimeSetUp() {
+    test_begin_dir=$(pwd)
+}
 
-#unset HOOK_VERBOSE_OPTION
+oneTimeTearDown() {
+    cd "$test_begin_dir"
+}
 
 setUp () {
     rm -rf "$WORKON_HOME"
@@ -31,7 +34,7 @@ test_ticket_101 () {
     cd "$WORKON_HOME/start_here"
     pushd "$WORKON_HOME/on_the_stack"
     rmvirtualenv some_env
-    mkvirtualenv --no-site-packages some_env
+    mkvirtualenv some_env >/dev/null 2>&1
     #echo "After mkvirtualenv: `pwd`"
     deactivate
     #echo "After deactivate: `pwd`"
@@ -39,6 +42,7 @@ test_ticket_101 () {
     #echo "After popd: `pwd`"
     current_dir=$(pwd)
     assertSame "$WORKON_HOME/start_here" "$current_dir"
+
 }
 
 . "$test_dir/shunit2"

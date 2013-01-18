@@ -1,10 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -22,7 +19,7 @@ setUp () {
 }
 
 test_get_python_version () {
-    expected="$(python -c 'import sys; print ".".join([str(p) for p in sys.version_info[:2]])')"
+    expected="$($VIRTUAL_ENV/bin/python -c 'import sys; sys.stdout.write("%s.%s\n" % sys.version_info[:2])')"
     echo "Expecting: $expected"
     vers=$(virtualenvwrapper_get_python_version)
     echo "Got      : $vers"

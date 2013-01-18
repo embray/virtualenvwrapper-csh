@@ -22,19 +22,17 @@ endif
 # Move out of the current directory to one known to be
 # safe, in case we are inside the environment somewhere.
 set prior_dir = "$cwd"
-cd "$WORKON_HOME"
+virtualenvwrapper_cd "$WORKON_HOME"
 
 virtualenvwrapper_run_hook "pre_rmvirtualenv" "$env_name"
-rm -rf "$env_dir"
+r\m -rf "$env_dir"
 virtualenvwrapper_run_hook "post_rmvirtualenv" "$env_name"
 
 # If the directory we used to be in still exists, move back to it.
 if ( -d "$prior_dir" ) then
-    cd "$prior_dir"
+    virtualenvwrapper_cd "$prior_dir"
 endif
 
 unset env_name
 unset env_dir
 unset prior_dir
-
-

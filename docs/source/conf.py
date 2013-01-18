@@ -11,7 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import datetime
 import subprocess
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -23,7 +23,7 @@ import subprocess
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [ 'sphinxcontrib.bitbucket' ]
+extensions = ['sphinxcontrib.bitbucket']
 
 bitbucket_project_url = 'http://bitbucket.org/dhellmann/virtualenvwrapper/'
 
@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'virtualenvwrapper'
-copyright = u'2009-2011, Doug Hellmann'
+copyright = u'2009-%s, Doug Hellmann' % datetime.datetime.today().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -95,7 +95,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'nature'
+html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

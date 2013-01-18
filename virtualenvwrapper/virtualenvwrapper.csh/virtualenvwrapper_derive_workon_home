@@ -30,7 +30,7 @@ if ( `echo "$workon_home_dir" | egrep '([\$~]|//)' > /dev/null` ) then
     # - Removing extra slashes (e.g., when TMPDIR ends in a slash)
     # - Expanding variables (e.g., $foo)
     # - Converting ~s to complete paths (e.g., ~/ to /home/brian/ and ~arthur to /home/arthur)
-    set workon_home_dir = `"$VIRTUALENVWRAPPER_PYTHON" -c "import os; print os.path.expandvars(os.path.expanduser(\"$workon_home_dir\"))"`
+    set workon_home_dir = `virtualenvwrapper_expandpath "$workon_home_dir"`
 endif
 
 echo "$workon_home_dir"

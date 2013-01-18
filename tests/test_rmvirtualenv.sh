@@ -1,10 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -27,6 +24,18 @@ test_remove () {
     deactivate
     rmvirtualenv "deleteme"
     assertFalse "[ -d $WORKON_HOME/deleteme ]"
+}
+
+test_remove_several_envs () {
+    mkvirtualenv "deleteme" >/dev/null 2>&1
+    assertTrue "[ -d $WORKON_HOME/deleteme ]"
+    deactivate
+    mkvirtualenv "deleteme2" >/dev/null 2>&1
+    assertTrue "[ -d $WORKON_HOME/deleteme2 ]"
+    deactivate
+    rmvirtualenv "deleteme deleteme2"
+    assertFalse "[ -d $WORKON_HOME/deleteme ]"
+    assertFalse "[ -d $WORKON_HOME/deleteme2 ]"
 }
 
 test_within_virtualenv () {

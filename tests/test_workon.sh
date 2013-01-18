@@ -1,17 +1,14 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
     mkdir -p "$WORKON_HOME"
     source "$test_dir/../virtualenvwrapper.sh"
-    mkvirtualenv "env1"
-    mkvirtualenv "env2"
+    mkvirtualenv "env1" >/dev/null 2>&1
+    mkvirtualenv "env2" >/dev/null 2>&1
     deactivate >/dev/null 2>&1 
 }
 
@@ -82,6 +79,22 @@ test_virtualenvwrapper_show_workon_options_grep_options () {
     envs=$(virtualenvwrapper_show_workon_options | tr '\n' ' ')
     unset GREP_OPTIONS
     assertSame "env1 env2 link_env " "$envs"
+    rmdir "$WORKON_HOME/not_env"
+    rm -f "$WORKON_HOME/link_env"
+}
+
+test_virtualenvwrapper_show_workon_options_chpwd () {
+    # https://bitbucket.org/dhellmann/virtualenvwrapper/issue/153
+    function chpwd {
+        local SEARCH=' '
+        local REPLACE='%20'
+        local PWD_URL="file://$HOSTNAME${PWD//$SEARCH/$REPLACE}"
+        printf '\e]7;%s\a' "$PWD_URL"
+        echo -n "\033]0;${HOST//.*}:$USER\007"
+    }
+    mkdir "$WORKON_HOME/not_env"
+    envs=$(virtualenvwrapper_show_workon_options | tr '\n' ' ')
+    assertSame "env1 env2 " "$envs"
     rmdir "$WORKON_HOME/not_env"
     rm -f "$WORKON_HOME/link_env"
 }

@@ -1,10 +1,7 @@
 #!/bin/sh
 
-#set -x
-
 test_dir=$(cd $(dirname $0) && pwd)
-
-export WORKON_HOME="$(echo ${TMPDIR:-/tmp}/WORKON_HOME | sed 's|//|/|g')"
+source "$test_dir/setup.sh"
 
 oneTimeSetUp() {
     rm -rf "$WORKON_HOME"
@@ -19,6 +16,7 @@ oneTimeTearDown() {
 setUp () {
     echo
     rm -f "$test_dir/catch_output"
+    unset VIRTUALENVWRAPPER_INITIALIZED
 }
 
 test_virtualenvwrapper_initialize() {
@@ -83,31 +81,41 @@ test_virtualenvwrapper_verify_workon_home_missing_dir_grep_options() {
     unset GREP_OPTIONS
 }
 
-test_get_python_version() {
-    expected=$(python -V 2>&1 | cut -f2 -d' ' | cut -f-2 -d.)
-    actual=$(virtualenvwrapper_get_python_version)
-    assertSame "$expected" "$actual"
-}
-
 test_python_interpreter_set_incorrectly() {
     return_to="$(pwd)"
     cd "$WORKON_HOME"
-    mkvirtualenv --no-site-packages no_wrappers
+    mkvirtualenv no_wrappers >/dev/null 2>&1
+	RC=$?
+	assertEquals "mkvirtualenv return code wrong" "0" "$RC"
     expected="ImportError: No module named virtualenvwrapper.hook_loader"
     # test_shell is set by tests/run_tests
     if [ "$test_shell" = "" ]
     then
-	export test_shell=$SHELL
+        export test_shell=$SHELL
     fi
     subshell_output=$(VIRTUALENVWRAPPER_PYTHON="$WORKON_HOME/no_wrappers/bin/python" $test_shell $return_to/virtualenvwrapper.sh 2>&1)
-    echo "$subshell_output"
+    #echo "$subshell_output"
     echo "$subshell_output" | grep -q "$expected" 2>&1
     found_it=$?
-    echo "$found_it"
+    #echo "$found_it"
     assertTrue "Expected \'$expected\', got: \'$subshell_output\'" "[ $found_it -eq 0 ]"
-    assertFalse "Failed to detect invalid Python location" "VIRTUALENVWRAPPER_PYTHON=$VIRTUAL_ENV/bin/python $SHELL $return_to/virtualenvwrapper.sh >/dev/null 2>&1"
+    assertFalse "Failed to detect invalid Python location" "VIRTUALENVWRAPPER_PYTHON=$VIRTUAL_ENV/bin/python virtualenvwrapper_run_hook initialize >/dev/null 2>&1"
     cd "$return_to"
     deactivate
+}
+
+test_virtualenvwrapper_verify_virtualenv(){
+    assertTrue "Verified unable to verify virtualenv" virtualenvwrapper_verify_virtualenv
+
+    VIRTUALENVWRAPPER_VIRTUALENV="thiscannotpossiblyexist123"
+    assertFalse "Incorrectly verified virtualenv" virtualenvwrapper_verify_virtualenv
+}
+
+test_virtualenvwrapper_verify_virtualenv_clone(){
+    assertTrue "Verified unable to verify virtualenv_clone" virtualenvwrapper_verify_virtualenv_clone
+
+    VIRTUALENVWRAPPER_VIRTUALENV_CLONE="thiscannotpossiblyexist123"
+    assertFalse "Incorrectly verified virtualenv_clone" virtualenvwrapper_verify_virtualenv_clone
 }
 
 . "$test_dir/shunit2"
