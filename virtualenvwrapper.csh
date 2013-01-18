@@ -98,79 +98,6 @@ endif
 # Portable shell scripting is hard, let's go shopping.
 #
 # People insist on aliasing commands like 'cd', either with a real
-<<<<<<< mine
-# alias or even a shell function. Under bash and zsh, "builtin" forces
-# the use of a command that is part of the shell itself instead of an
-# alias, function, or external command, while "command" does something
-# similar but allows external commands. Under ksh "builtin" registers
-# a new command from a shared library, but "command" will pick up
-# existing builtin commands. We need to use a builtin for cd because
-# we are trying to change the state of the current shell, so we use
-# "builtin" for bash and zsh but "command" under ksh.
-function virtualenvwrapper_cd {
-    if [ -n "$BASH" ]
-    then
-        builtin \cd "$@"
-    elif [ -n "$ZSH_VERSION" ]
-    then
-        builtin \cd "$@"
-    else
-        command \cd "$@"
-    fi
-}
-
-function virtualenvwrapper_expandpath {
-    if [ "$1" = "" ]; then
-        return 1
-    else
-        "$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.normpath(os.path.expanduser(os.path.expandvars(\"$1\")))+'\n')"
-        return 0
-    fi
-}
-
-function virtualenvwrapper_absolutepath {
-    if [ "$1" = "" ]; then
-        return 1
-    else
-        "$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.abspath(\"$1\")+'\n')"
-        return 0
-    fi
-}
-
-function virtualenvwrapper_derive_workon_home {
-    typeset workon_home_dir="$WORKON_HOME"
-
-    # Make sure there is a default value for WORKON_HOME.
-    # You can override this setting in your .bashrc.
-    if [ "$workon_home_dir" = "" ]
-    then
-        workon_home_dir="$HOME/.virtualenvs"
-    fi
-
-    # If the path is relative, prefix it with $HOME
-    # (note: for compatibility)
-    if echo "$workon_home_dir" | (unset GREP_OPTIONS; command \grep '^[^/~]' > /dev/null)
-    then
-        workon_home_dir="$HOME/$WORKON_HOME"
-    fi
-
-    # Only call on Python to fix the path if it looks like the
-    # path might contain stuff to expand.
-    # (it might be possible to do this in shell, but I don't know a
-    # cross-shell-safe way of doing it -wolever)
-    if echo "$workon_home_dir" | (unset GREP_OPTIONS; command \egrep '([\$~]|//)' >/dev/null)
-    then
-        # This will normalize the path by:
-        # - Removing extra slashes (e.g., when TMPDIR ends in a slash)
-        # - Expanding variables (e.g., $foo)
-        # - Converting ~s to complete paths (e.g., ~/ to /home/brian/ and ~arthur to /home/arthur)
-        workon_home_dir=$(virtualenvwrapper_expandpath "$workon_home_dir")
-    fi
-
-    echo "$workon_home_dir"
-    return 0
-}
-=======
 # alias or even a shell function.
 # http://unix.stackexchange.com/questions/12762/how-do-i-temporarily-bypass-an-alias-in-tcsh
 alias virtualenvwrapper_cd 'c\d \!*'
@@ -180,7 +107,6 @@ alias virtualenvwrapper_expandpath \
 
 alias virtualenvwrapper_derive_workon_home \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/virtualenvwrapper_derive_workon_home'
->>>>>>> theirs
 
 # Check if the WORKON_HOME directory exists,
 # create it if it does not
@@ -273,111 +199,8 @@ alias mkvirtualenv_help \
 # Usage: mkvirtualenv [options] ENVNAME
 # (where the options are passed directly to virtualenv)
 #
-<<<<<<< mine
-function mkvirtualenv {
-    typeset -a in_args
-    typeset -a out_args
-    typeset -i i
-    typeset tst
-    typeset a
-    typeset envname
-    typeset requirements
-    typeset packages
-
-    in_args=( "$@" )
-
-    if [ -n "$ZSH_VERSION" ]
-    then
-        i=1
-        tst="-le"
-    else
-        i=0
-        tst="-lt"
-    fi
-    while [ $i $tst $# ]
-    do
-        a="${in_args[$i]}"
-        # echo "arg $i : $a"
-        case "$a" in
-            -a)
-                i=$(( $i + 1 ));
-                project="${in_args[$i]}";;
-            -h|--help)
-                mkvirtualenv_help $a;
-                return;;
-            -i)
-                i=$(( $i + 1 ));
-                packages="$packages ${in_args[$i]}";;
-            -p|--python)
-                i=$(( $i + 1 ));
-                interpreter="${in_args[$i]}";
-                interpreter=$(virtualenvwrapper_absolutepath "$interpreter");;
-            -r)
-                i=$(( $i + 1 ));
-                requirements="${in_args[$i]}";
-                requirements=$(virtualenvwrapper_expandpath "$requirements");;
-            *)
-                if [ ${#out_args} -gt 0 ]
-                then
-                    out_args=( "${out_args[@]-}" "$a" )
-                else
-                    out_args=( "$a" )
-                fi;;
-        esac
-        i=$(( $i + 1 ))
-    done
-
-    if [ ! -z $interpreter ]
-    then
-        out_args=( "--python=$interpreter" ${out_args[@]} )
-    fi;
-
-    set -- "${out_args[@]}"
-
-    eval "envname=\$$#"
-    virtualenvwrapper_verify_workon_home || return 1
-    virtualenvwrapper_verify_virtualenv || return 1
-    (
-        [ -n "$ZSH_VERSION" ] && setopt SH_WORD_SPLIT
-        virtualenvwrapper_cd "$WORKON_HOME" &&
-        "$VIRTUALENVWRAPPER_VIRTUALENV" $VIRTUALENVWRAPPER_VIRTUALENV_ARGS "$@" &&
-        [ -d "$WORKON_HOME/$envname" ] && \
-            virtualenvwrapper_run_hook "pre_mkvirtualenv" "$envname"
-    )
-    typeset RC=$?
-    [ $RC -ne 0 ] && return $RC
-
-    # If they passed a help option or got an error from virtualenv,
-    # the environment won't exist.  Use that to tell whether
-    # we should switch to the environment and run the hook.
-    [ ! -d "$WORKON_HOME/$envname" ] && return 0
-
-    # If they gave us a project directory, set it up now
-    # so the activate hooks can find it.
-    if [ ! -z "$project" ]
-    then
-        setvirtualenvproject "$WORKON_HOME/$envname" "$project"
-    fi
-
-    # Now activate the new environment
-    workon "$envname"
-
-    if [ ! -z "$requirements" ]
-    then
-        pip install -r "$requirements"
-    fi
-
-    for a in $packages
-    do
-        pip install $a
-    done
-
-    virtualenvwrapper_run_hook "post_mkvirtualenv"
-}
-=======
 alias mkvirtualenv \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/mkvirtualenv \!:*'
->>>>>>> theirs
 
 # Remove an environment, in the WORKON_HOME.
 alias rmvirtualenv \
@@ -437,74 +260,9 @@ alias virtualenvwrapper_get_site_packages_dir \
 # "virtualenv_path_extensions.pth" inside the virtualenv's
 # site-packages directory; if this file does not exist, it will be
 # created first.
-<<<<<<< mine
-function add2virtualenv {
-    virtualenvwrapper_verify_workon_home || return 1
-    virtualenvwrapper_verify_active_environment || return 1
-
-    site_packages="`virtualenvwrapper_get_site_packages_dir`"
-
-    if [ ! -d "${site_packages}" ]
-    then
-        echo "ERROR: currently-active virtualenv does not appear to have a site-packages directory" >&2
-        return 1
-    fi
-
-    # Prefix with _ to ensure we are loaded as early as possible,
-    # and at least before easy_install.pth.
-    path_file="$site_packages/_virtualenv_path_extensions.pth"
-
-    if [ "$*" = "" ]
-    then
-        echo "Usage: add2virtualenv dir [dir ...]"
-        if [ -f "$path_file" ]
-        then
-            echo
-            echo "Existing paths:"
-            cat "$path_file" | grep -v "^import"
-        fi
-        return 1
-    fi
-
-    remove=0
-    if [ "$1" = "-d" ]
-    then
-        remove=1
-        shift
-    fi
-
-    if [ ! -f "$path_file" ]
-    then
-        echo "import sys; sys.__plen = len(sys.path)" > "$path_file" || return 1
-        echo "import sys; new=sys.path[sys.__plen:]; del sys.path[sys.__plen:]; p=getattr(sys,'__egginsert',0); sys.path[p:p]=new; sys.__egginsert = p+len(new)" >> "$path_file" || return 1
-    fi
-
-    for pydir in "$@"
-    do
-        absolute_path=$(virtualenvwrapper_absolutepath "$pydir")
-        if [ "$absolute_path" != "$pydir" ]
-        then
-            echo "Warning: Converting \"$pydir\" to \"$absolute_path\"" 1>&2
-        fi
-
-        if [ $remove -eq 1 ]
-        then
-            sed -i.tmp "\:^$absolute_path$: d" "$path_file"
-        else
-            sed -i.tmp '1 a\
-'"$absolute_path"'
-' "$path_file"
-        fi
-        rm -f "${path_file}.tmp"
-    done
-    return 0
-}
-
-=======
 alias add2virtualenv \
     'source ${VIRTUALENVWRAPPER_SCRIPT_PATH}/add2virtualenv \!:*'
      
->>>>>>> theirs
 # Does a ``cd`` to the site-packages directory of the currently-active
 # virtualenv.
 alias cdsitepackages \
