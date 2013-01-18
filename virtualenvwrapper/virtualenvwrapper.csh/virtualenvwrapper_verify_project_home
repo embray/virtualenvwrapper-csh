@@ -1,0 +1,14 @@
+if ( $?PROJECT_HOME ) then
+    if ( $PROJECT_HOME == "" ) then
+        echo "ERROR: Set the PROJECT_HOME shell variable to the name of the directory where projects should be created." > /dev/stderr
+        exit 1
+    endif
+    if ( ! -d "$PROJECT_HOME" ) then
+        test \( "$1" != "-q" \) && echo "ERROR: Project directory '$PROJECT_HOME' does not exist.  Create it or set PROJECT_HOME to an existing directory." > /dev/stderr
+        exit 1
+    endif
+    exit 0
+else
+    echo "ERROR: Set the PROJECT_HOME shell variable to the name of the directory where projects should be created." > /dev/stderr
+    exit 1
+endif

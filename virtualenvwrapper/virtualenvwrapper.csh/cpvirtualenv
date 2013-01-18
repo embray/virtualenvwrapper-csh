@@ -1,0 +1,69 @@
+set src_name = "$1"
+set trg_name = "$2"
+
+if ( "$src_name" == "" ) then
+    echo "Please provide a valid virtualenv to copy."
+    unset src_name
+    unset trg_name
+    exit 1
+else
+    # see if its already in workon
+    if ( ! -e "$WORKON_HOME/$src_name" ) then
+        # so its a virtualenv we are importing
+        # make sure we have a full path
+        # and get the name
+        set src = `virtualenvwrapper_expandpath "$src_name"`
+        # final verification
+        if ( ! -e "$src" ) then
+            echo "Please provide a valid virtualenv to copy."
+            unset src
+            unset src_name
+            unset trg_name
+            exit 1
+        endif
+        set src_name = `basename "$src"`
+    else
+       set src = "$WORKON_HOME/$src_name"
+    endif
+endif
+
+if ( "$trg_name" == "" ) then
+    # target not given, assume
+    # same as source
+    set trg = "$WORKON_HOME/$src_name"
+    set trg_name = "$src_name"
+else
+    set trg = "$WORKON_HOME/$trg_name"
+endif
+set trg = `virtualenvwrapper_expandpath "$trg"`
+
+# validate trg does not already exist
+# catch copying virtualenv in workon home
+# to workon home
+if ( -e "$trg" ) then
+    echo "$trg_name virtualenv already exists."
+    exit 1
+endif
+
+echo "Copying $src_name as $trg_name..."
+(virtualenvwrapper_cd "$WORKON_HOME" && \
+"$VIRTUALENVWRAPPER_VIRTUALENV_CLONE" "$src" "$trg" ; \
+test \( -d "$trg" \) && \
+virtualenvwrapper_run_hook "pre_cpvirtualenv" "$src" "$trg_name" && \
+virtualenvwrapper_run_hook "pre_mkvirtualenv" "$trg_name")
+
+@ RC = $?
+test \( $RC -ne 0 \) && unset src_name && unset trg_name && unset src && unset trg && exit $RC
+
+test \( ! -d "$WORKON_HOME/$trg_name" \) && unset src_name && unset trg_name && unset src && unset trg && exit 1
+
+# Now activate the new environment
+workon "$trg_name"
+
+virtualenvwrapper_run_hook "post_mkvirtualenv"
+virtualenvwrapper_run_hook "post_cpvirtualenv"
+
+unset src_name
+unset trg_name
+unset src
+unset trg

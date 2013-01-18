@@ -1,0 +1,12 @@
+echo "Usage: mkproject [-t template] [virtualenv options] project_name"
+echo ""
+echo "Multiple templates may be selected.  They are applied in the order"
+echo "specified on the command line."
+echo
+echo "mkvirtualenv help:"
+echo
+mkvirtualenv -h;
+echo
+echo "Available project templates:"
+echo
+"$VIRTUALENVWRAPPER_PYTHON" -c 'from virtualenvwrapper.hook_loader import main; main()' -l project.template

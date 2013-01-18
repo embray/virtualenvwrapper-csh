@@ -138,6 +138,7 @@ setup(
 
     scripts=['virtualenvwrapper.sh',
              'virtualenvwrapper_lazy.sh',
+             'virtualenvwrapper.csh'
              ],
 
     provides=['virtualenvwrapper',

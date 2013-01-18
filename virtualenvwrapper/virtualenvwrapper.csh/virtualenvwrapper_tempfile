@@ -1,0 +1,10 @@
+# Note: the 'X's must come last
+set suffix = "${1}-hook"
+set file = "`virtualenvwrapper_mktemp -t virtualenvwrapper-$suffix-XXXXXXXXXX`"
+if ( $? != 0 || "$file" == "" || ! -f "$file" ) then
+    echo "ERROR: virtualenvwrapper could not create a temporary file name." \
+        > /dev/stderr
+    exit 1
+endif
+echo $file
+exit 0

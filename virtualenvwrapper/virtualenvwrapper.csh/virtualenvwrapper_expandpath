@@ -1,0 +1,6 @@
+if ( "$#argv" == "0" ) then
+    exit 1
+else
+    "$VIRTUALENVWRAPPER_PYTHON" -c "import os,sys; sys.stdout.write(os.path.normpath(os.path.expanduser(os.path.expandvars('$1')))+'\n')"
+    exit 0
+endif

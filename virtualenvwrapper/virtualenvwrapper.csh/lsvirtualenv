@@ -1,0 +1,42 @@
+set long_mode = true
+set args = (`getopt blh "$argv"`)
+if ( $? != 0 ) then
+    _lsvirtualenv_usage
+    unset args
+    unset long_mode
+    exit 1
+endif
+
+foreach opt ($args)
+    switch ( "$opt" )
+        case -l:
+            set long_mode = true
+            breaksw
+        case -b:
+            set long_mode = false
+            breaksw
+        case -h:
+            _lsvirtualenv_usage
+            unset args
+            unset long_mode
+            exit 1
+        # RP: can't understand how this works...
+        case --:
+            breaksw
+        default:
+            echo "Invalid option: -$opt" > /dev/stderr
+            _lsvirtualenv_usage
+            exit 1
+    endsw
+end
+
+if ( $long_mode == "true" ) then
+    foreach env_name (`virtualenvwrapper_show_workon_options`)
+        showvirtualenv "$env_name"
+    end
+else
+    virtualenvwrapper_show_workon_options
+endif
+
+unset args
+unset long_mode

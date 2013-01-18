@@ -1,0 +1,14 @@
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_active_environment || exit 1
+set site_packages = "`virtualenvwrapper_get_site_packages_dir`"
+ls $argv $site_packages
+
+set path_file = "$site_packages/_virtualenv_path_extensions.pth"
+if ( -f "$path_file" ) then
+    echo
+    echo "_virtualenv_path_extensions.pth:"
+    cat "$path_file"
+endif
+
+unset path_file
+unset site_packages

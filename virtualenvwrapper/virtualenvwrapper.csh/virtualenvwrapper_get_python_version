@@ -1,0 +1,1 @@
+$VIRTUAL_ENV/bin/python -V |& cut -f2 -d' ' | cut -f-2 -d.

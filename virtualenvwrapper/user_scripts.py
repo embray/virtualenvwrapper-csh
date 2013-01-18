@@ -135,6 +135,30 @@ def make_hook(filename, comment):
     return
 
 
+def make_setenv(varname, value):
+    """Generate code for setting an environment variable appropriate to the
+    current shell.  For example, on most shells,
+
+    >>> make_setenv('FOO', 'bar')
+    FOO="bar"
+
+    though on csh-like shells this returns:
+
+    >>> make_setenv('FOO', 'bar')
+    setenv FOO "bar"
+
+
+    :param varname: The name of the environment variable to set.
+    :param value: The value to set to the given environment variable.
+    """
+
+    shell = os.environ.get('SHELL', '/bin/sh')
+    if shell.endswith('csh'):
+        return 'setenv %s "%s"' % (varname, value)
+    else:
+        return '%s="%s"' % (varname, value)
+
+
 # HOOKS
 
 
@@ -237,11 +261,13 @@ def post_deactivate_source(args):
 #
 # Run user-provided scripts
 #
-VIRTUALENVWRAPPER_LAST_VIRTUAL_ENV="$WORKON_HOME/%(env_name)s"
+%(setenv)s
 [ -f "$WORKON_HOME/%(env_name)s/bin/postdeactivate" ] && source "$WORKON_HOME/%(env_name)s/bin/postdeactivate"
 [ -f "$VIRTUALENVWRAPPER_HOOK_DIR/postdeactivate" ] && source "$VIRTUALENVWRAPPER_HOOK_DIR/postdeactivate"
 unset VIRTUALENVWRAPPER_LAST_VIRTUAL_ENV
-""" % {'env_name': args[0]}
+""" % { 'setenv': make_setenv('VIRTUALENVWRAPPER_LAST_VIRTUAL_ENV',
+                              '$WORKON_HOME/' + args[0]),
+        'env_name': args[0] }
 
 
 def get_env_details(args):

@@ -1,0 +1,3 @@
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_active_environment || exit 1
+virtualenvwrapper_cd "`virtualenvwrapper_get_site_packages_dir`/$1"

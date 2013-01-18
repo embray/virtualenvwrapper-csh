@@ -1,0 +1,18 @@
+virtualenvwrapper_verify_workon_home || exit 1
+virtualenvwrapper_verify_active_environment || exit 1
+if ( -f "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME" ) then
+    set project_dir = `cat "$VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME"`
+    if ( "$project_dir" != "" ) then
+        cd "$project_dir"
+    else
+        echo "Project directory $project_dir does not exist" > /dev/stderr
+        unset project_dir
+        exit 1
+    endif
+else
+    echo "No project set in $VIRTUAL_ENV/$VIRTUALENVWRAPPER_PROJECT_FILENAME" > /dev/stderr
+    unset project_dir
+    exit 1
+endif
+unset project_dir
+exit 0
