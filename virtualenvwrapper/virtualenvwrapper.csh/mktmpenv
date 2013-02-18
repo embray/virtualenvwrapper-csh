@@ -1,6 +1,6 @@
 # Generate a unique temporary name
 # RP: csh cannot redirect only stderr, so doing things a bit diferently
-"$VIRTUALENVWRAPPER_PYTHON" -c 'import uuid,sys; sys.stdout.write(str(uuid.uuid4())+"\n")'
+"$VIRTUALENVWRAPPER_PYTHON" -c 'import uuid,sys; sys.stdout.write(str(uuid.uuid4())+"\n")' >& /dev/null
 @ RC = $?
 if ( "$RC" == "0" ) then
     set tmpenvname = `"$VIRTUALENVWRAPPER_PYTHON" -c 'import uuid,sys; sys.stdout.write(str(uuid.uuid4())+"\n")'`
@@ -10,12 +10,12 @@ else
 endif
 
 # Create the environment
-mkvirtualenv "$@" "$tmpenvname"
+mkvirtualenv $* "$tmpenvname"
 @ RC = $?
 if ( "$RC" != "0" ) then
     unset tmpenvname
     exit $RC
-fi
+endif
 
 # Change working directory
 cdvirtualenv
@@ -25,9 +25,8 @@ echo "This is a temporary environment. It will be deleted when you run 'deactiva
 
 # Update the postdeactivate script
 cat - >> "$VIRTUAL_ENV/bin/postdeactivate" <<EOF
-if [ -f "$VIRTUAL_ENV/README.tmpenv" ]
-then
-    echo "Removing temporary environment:" $(basename "$VIRTUAL_ENV")
-    rmvirtualenv $(basename "$VIRTUAL_ENV")
-fi
+if ( -f "$VIRTUAL_ENV/README.tmpenv" ) then
+    echo "Removing temporary environment:" `basename "$VIRTUAL_ENV"`
+    rmvirtualenv `basename "$VIRTUAL_ENV"`
+endif
 EOF
