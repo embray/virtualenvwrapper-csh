@@ -24,9 +24,9 @@ endif
 set prior_dir = "$cwd"
 virtualenvwrapper_cd "$WORKON_HOME"
 
-virtualenvwrapper_run_hook "pre_rmvirtualenv" "$env_name"
-r\m -rf "$env_dir"
-virtualenvwrapper_run_hook "post_rmvirtualenv" "$env_name"
+(virtualenvwrapper_run_hook "pre_rmvirtualenv" "$env_name"; \
+r\m -rf "$env_dir"; \
+virtualenvwrapper_run_hook "post_rmvirtualenv" "$env_name")
 
 # If the directory we used to be in still exists, move back to it.
 if ( -d "$prior_dir" ) then
